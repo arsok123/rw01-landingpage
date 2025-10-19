@@ -70,4 +70,10 @@ window.addEventListener('load', showOnScroll);
 
 // Preview file input (Aspirasi)
 document.querySelectorAll('input[type=file]').forEach(input=>{
-  input.addEvent
+  input.addEventListener('change', function(){
+    const preview = document.createElement('p');
+    preview.textContent = this.files[0] ? 'File siap diupload: ' + this.files[0].name : '';
+    if(this.nextSibling){ this.nextSibling.remove(); }
+    this.parentNode.insertBefore(preview, this.nextSibling);
+  });
+});
