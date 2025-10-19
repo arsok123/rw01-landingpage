@@ -1,8 +1,8 @@
 // URLs CSV Google Sheets
-const beritaURL = 'https://docs.google.com/spreadsheets/d/e/.../pub?gid=2090908824&single=true&output=csv';
-const galeriURL = 'https://docs.google.com/spreadsheets/d/e/.../pub?gid=1520446044&single=true&output=csv';
-const bisnisURL = 'https://docs.google.com/spreadsheets/d/e/.../pub?gid=227320896&single=true&output=csv';
-const saldoURL = 'https://docs.google.com/spreadsheets/d/e/.../pub?gid=0&single=true&output=csv';
+const beritaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=2090908824&single=true&output=csv';
+const galeriURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=1520446044&single=true&output=csv';
+const bisnisURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=227320896&single=true&output=csv';
+const saldoURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=0&single=true&output=csv';
 
 // Fetch CSV via PapaParse
 function fetchCSV(url, callback){
