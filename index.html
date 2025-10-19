@@ -11,54 +11,32 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
 
 <style>
-/* Base */
 body { font-family: 'Arial', sans-serif; background:#f0f6f0; margin:0; padding:0; scroll-behavior: smooth; }
 a { text-decoration: none; }
-
-/* Header */
-header {
-  background: linear-gradient(135deg,#2e7d32,#66bb6a);
-  color: white; text-align:center; height:70vh; display:flex; flex-direction:column; justify-content:center;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-}
+header { background: linear-gradient(135deg,#2e7d32,#66bb6a); color: white; text-align:center; height:70vh; display:flex; flex-direction:column; justify-content:center; }
 header h1 { font-size:3rem; margin-bottom:10px; animation: fadeInDown 1s; }
 header p { font-size:1.3rem; animation: fadeInUp 1.2s; }
 .btn-cta { background:#fff; color:#2e7d32; font-weight:bold; padding:12px 30px; border-radius:50px; border:none; transition:0.3s; }
 .btn-cta:hover { background:#e0e0e0; color:#1b5e20; transform: scale(1.05); }
-
-/* Sections & Cards */
 section { padding:80px 20px; }
 .card { transition: transform 0.4s, box-shadow 0.4s; border-radius:15px; cursor:pointer; background:white; }
 .card:hover { transform: translateY(-10px); box-shadow:0 15px 30px rgba(0,0,0,0.25); }
 img { border-radius:15px; transition: transform 0.4s, box-shadow 0.4s; }
 img:hover { transform: scale(1.05); box-shadow:0 10px 25px rgba(0,0,0,0.2); }
-
-/* Footer */
 .footer { background:#1b5e20; color:white; padding:40px 20px; text-align:center; }
-
-/* Scroll Animation */
 .animate { opacity:0; transform: translateY(30px); transition: all 0.7s ease-in-out; }
 .animate.show { opacity:1; transform: translateY(0); }
-
-/* Keyframes */
 @keyframes fadeInDown { from {opacity:0; transform:translateY(-50px);} to {opacity:1; transform:translateY(0);} }
 @keyframes fadeInUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
-
-/* Form Aspirasi */
 input[type=file] { padding:6px; }
 #form-aspirasi p { font-size:0.9rem; color:#2e7d32; margin-top:5px; }
-
-/* Lightbox */
 .lightboxOverlay { background: rgba(0,0,0,0.85) !important; z-index:1050; }
 .lightbox { border-radius:15px !important; }
-
-/* Responsive */
 @media(max-width:768px){ header h1{font-size:2.2rem;} header p{font-size:1.1rem;} .btn-cta{padding:10px 20px;} }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <header class="header text-center">
   <h1>RW 01 - Dukuh Polodadi</h1>
   <p>Desa Tarubasan, Kecamatan Karanganom, Kabupaten Klaten</p>
@@ -133,32 +111,6 @@ input[type=file] { padding:6px; }
   <div id="list-aspirasi" class="animate"></div>
 </section>
 
-<!-- Bisnis Warga -->
-<section class="section bg-light p-4">
-  <h2>Bisnis Warga</h2>
-  <div class="row animate">
-    <div class="col-md-4 card p-3 m-2"><h5>Keripik Singkong</h5><p>Deskripsi produk keripik singkong.</p><p>Harga: Rp 20.000</p><p>Kontak: 081234567890</p></div>
-    <div class="col-md-4 card p-3 m-2"><h5>Jasa Cuci Motor</h5><p>Deskripsi jasa cuci motor.</p><p>Harga: Rp 10.000</p><p>Kontak: 081234567891</p></div>
-    <div class="col-md-4 card p-3 m-2"><h5>Tanaman Hias</h5><p>Deskripsi tanaman hias.</p><p>Harga: Rp 50.000</p><p>Kontak: 081234567892</p></div>
-  </div>
-</section>
-
-<!-- Peta Lokasi -->
-<section class="section p-4">
-  <h2>Peta Lokasi RW</h2>
-  <div class="ratio ratio-16x9 animate">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.12345!2d110.5632!3d-7.5735!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a69bb311ea8ff%3A0x123456789abcdef!2sRW01+Dukuh+Polodadi!5e0!3m2!1sid!2sid!4v1697670000000!5m2!1sid!2sid" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-  </div>
-</section>
-
-<!-- Kontak Pengurus -->
-<section class="section bg-light p-4 text-center">
-  <h2>Kontak Pengurus RW</h2>
-  <p>Ketua RW: Budi - <a href="https://wa.me/6281234567890" target="_blank">WA</a></p>
-  <p>Sekretaris: Ani - <a href="https://wa.me/6281234567891" target="_blank">WA</a></p>
-  <p>Bendahara: Sari - <a href="https://wa.me/6281234567892" target="_blank">WA</a></p>
-</section>
-
 <!-- Footer -->
 <footer class="footer p-3 text-center">
   <p>&copy; 2025 RW 01 - Dukuh Polodadi, Desa Tarubasan, Kecamatan Karanganom, Kabupaten Klaten.</p>
@@ -167,7 +119,6 @@ input[type=file] { padding:6px; }
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-
 <script>
 // Scroll animation
 const animElements = document.querySelectorAll('.animate');
@@ -194,10 +145,7 @@ document.querySelectorAll('input[type=file]').forEach(input => {
 if(typeof lightbox !== 'undefined'){
   lightbox.option({
     'resizeDuration': 200,
-    'wrapAround': true,
-    'fadeDuration': 300,
-    'imageFadeDuration': 300,
-    'alwaysShowNavOnTouchDevices': true
+    'wrapAround': true
   });
 }
 </script>
