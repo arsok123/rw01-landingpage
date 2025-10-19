@@ -1,17 +1,72 @@
+/* Styling untuk header */
+header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
 
-body { font-family: 'Arial', sans-serif; background: #f0f6f0; margin:0; padding:0; scroll-behavior: smooth; }
-header { background: linear-gradient(90deg,#2e7d32,#66bb6a); color: white; text-align:center; height: 70vh; display:flex; flex-direction:column; justify-content:center; }
-header h1 { font-size:3rem; margin-bottom:10px; animation: fadeInDown 1s; }
-header p { font-size:1.3rem; animation: fadeInUp 1.2s; }
-.btn-cta { background:#ffffff; color:#2e7d32; font-weight:bold; padding:12px 30px; border-radius:50px; border:none; transition:0.3s; }
-.btn-cta:hover { background:#e0e0e0; color:#1b5e20; transform: scale(1.05); }
-section { padding:80px 20px; }
-.card { transition: transform 0.3s, box-shadow 0.3s; border-radius:15px; }
-.card:hover { transform: translateY(-7px); box-shadow:0 10px 25px rgba(0,0,0,0.25); }
-img { border-radius:15px; transition: transform 0.3s; }
-img:hover { transform: scale(1.05); }
-.footer { background:#1b5e20; color:white; padding:40px 20px; text-align:center; }
-.animate { opacity:0; transform: translateY(30px); transition: all 0.7s ease-in-out; }
-.animate.show { opacity:1; transform: translateY(0); }
-@keyframes fadeInDown { from {opacity:0; transform: translateY(-50px);} to {opacity:1; transform: translateY(0);} }
-@keyframes fadeInUp { from {opacity:0; transform: translateY(50px);} to {opacity:1; transform: translateY(0);} }
+header p {
+  font-size: 1.3rem;
+}
+
+/* Untuk kartu dengan data CSV */
+.card {
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card h5 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Gambar untuk galeri */
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+  border-radius: 15px;
+}
+
+.img-fluid:hover {
+  transform: scale(1.05);
+}
+
+/* Mengatur tampilan responsif */
+@media (max-width: 768px) {
+  .col-md-4 {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .col-md-6 {
+    width: 100%;
+  }
+  header h1 {
+    font-size: 2.5rem;
+  }
+  header p {
+    font-size: 1.2rem;
+  }
+}
+
+/* Animasi untuk elemen yang masuk pada scroll */
+.animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s ease-in-out;
+}
+
+.animate.show {
+  opacity: 1;
+  transform: translateY(0);
+}
