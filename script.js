@@ -1,8 +1,11 @@
 // URLs CSV Google Sheets
-const beritaURL = 'URL_CSV_BERITA';
-const galeriURL = 'URL_CSV_GALERI';
-const bisnisURL = 'URL_CSV_BISNIS';
-const saldoURL = 'URL_CSV_SALDO';
+const beritaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=2090908824&single=true&output=csv
+_CSV_BERITA';
+const galeriURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=1520446044&single=true&output=csv_CSV_GALERI';
+const bisnisURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=227320896&single=true&output=csv
+_CSV_BISNIS';
+const saldoURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=0&single=true&output=csv
+_CSV_SALDO';
 
 // Fungsi fetch CSV menggunakan PapaParse
 function fetchCSV(url, callback){
