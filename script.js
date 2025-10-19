@@ -1,47 +1,136 @@
-// ======================
-// Scroll animation
-// ======================
-const animElements = document.querySelectorAll('.animate');
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RW 01 Dukuh Polodadi</title>
 
-function showOnScroll() {
-  animElements.forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight - 100) {
-      el.classList.add('show');
-    }
-  });
-}
+<!-- CSS -->
+<link href="css/style.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
+</head>
+<body>
 
-window.addEventListener('scroll', showOnScroll);
-window.addEventListener('load', showOnScroll);
+<!-- Header -->
+<header class="header text-center">
+  <h1>RW 01 - Dukuh Polodadi</h1>
+  <p>Desa Tarubasan, Kecamatan Karanganom, Kabupaten Klaten</p>
+  <a href="#form-aspirasi" class="btn btn-cta mt-3">Kirim Aspirasi</a>
+</header>
 
+<!-- Saldo Kas -->
+<section class="section bg-light p-4">
+  <h2>Saldo Kas</h2>
+  <div class="row animate">
+    <div class="col-md-4 card p-3 m-2 text-center"><h5>RW</h5><p>Rp 15.000.000</p></div>
+    <div class="col-md-4 card p-3 m-2 text-center"><h5>Jumputan</h5><p>Rp 3.500.000</p></div>
+    <div class="col-md-4 card p-3 m-2 text-center"><h5>Sosial</h5><p>Rp 2.200.000</p></div>
+  </div>
+</section>
 
-// ======================
-// Preview file input (aspirasi)
-// ======================
-document.querySelectorAll('input[type=file]').forEach(input => {
-  input.addEventListener('change', function () {
-    const preview = document.createElement('p');
-    preview.textContent = this.files[0] ? 'File siap diupload: ' + this.files[0].name : '';
-    if (this.nextSibling && this.nextSibling.tagName === 'P') {
-      this.nextSibling.remove();
-    }
-    this.parentNode.insertBefore(preview, this.nextSibling);
-  });
-});
+<!-- Berita -->
+<section class="section p-4">
+  <h2>Berita & Pengumuman</h2>
+  <div class="row animate">
+    <div class="col-md-6 card p-3 m-2"><h5>Rapat RW 01</h5><small>18/10/2025</small><p>Rapat membahas kegiatan bulan depan.</p></div>
+    <div class="col-md-6 card p-3 m-2"><h5>Gotong Royong Lingkungan</h5><small>15/10/2025</small><p>Warga membersihkan lingkungan RW.</p></div>
+  </div>
+</section>
 
+<!-- Galeri Kegiatan -->
+<section class="section bg-light p-4">
+  <h2>Galeri Kegiatan RW</h2>
+  <div class="row animate">
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri1.jpg" data-lightbox="galeri" data-title="Kegiatan RW 1">
+        <img src="img/galeri1.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri2.jpg" data-lightbox="galeri" data-title="Kegiatan RW 2">
+        <img src="img/galeri2.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri3.jpg" data-lightbox="galeri" data-title="Kegiatan RW 3">
+        <img src="img/galeri3.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri4.jpg" data-lightbox="galeri" data-title="Kegiatan RW 4">
+        <img src="img/galeri4.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri5.jpg" data-lightbox="galeri" data-title="Kegiatan RW 5">
+        <img src="img/galeri5.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+    <div class="col-md-4 mb-3">
+      <a href="img/galeri6.jpg" data-lightbox="galeri" data-title="Kegiatan RW 6">
+        <img src="img/galeri6.jpg" class="img-fluid rounded">
+      </a>
+    </div>
+  </div>
+</section>
 
-// ======================
-// Lightbox gallery initialization
-// ======================
-if (typeof lightbox !== 'undefined') {
+<!-- Form Aspirasi -->
+<section class="section p-4">
+  <h2>Formulir Aspirasi / Keluhan</h2>
+  <form id="form-aspirasi" class="mb-3">
+    <input name="nama" class="form-control mb-2" placeholder="Nama" required>
+    <textarea name="pesan" class="form-control mb-2" placeholder="Pesan" required></textarea>
+    <input type="file" class="form-control mb-2">
+    <button class="btn btn-success">Kirim</button>
+  </form>
+  <div id="list-aspirasi" class="animate"></div>
+</section>
+
+<!-- Bisnis Warga -->
+<section class="section bg-light p-4">
+  <h2>Bisnis Warga</h2>
+  <div class="row animate">
+    <div class="col-md-4 card p-3 m-2"><h5>Keripik Singkong</h5><p>Deskripsi produk keripik singkong.</p><p>Harga: Rp 20.000</p><p>Kontak: 081234567890</p></div>
+    <div class="col-md-4 card p-3 m-2"><h5>Jasa Cuci Motor</h5><p>Deskripsi jasa cuci motor.</p><p>Harga: Rp 10.000</p><p>Kontak: 081234567891</p></div>
+    <div class="col-md-4 card p-3 m-2"><h5>Tanaman Hias</h5><p>Deskripsi tanaman hias.</p><p>Harga: Rp 50.000</p><p>Kontak: 081234567892</p></div>
+  </div>
+</section>
+
+<!-- Peta Lokasi -->
+<section class="section p-4">
+  <h2>Peta Lokasi RW</h2>
+  <div class="ratio ratio-16x9 animate">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.12345!2d110.5632!3d-7.5735!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a69bb311ea8ff%3A0x123456789abcdef!2sRW01+Dukuh+Polodadi!5e0!3m2!1sid!2sid!4v1697670000000!5m2!1sid!2sid" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+  </div>
+</section>
+
+<!-- Kontak Pengurus -->
+<section class="section bg-light p-4 text-center">
+  <h2>Kontak Pengurus RW</h2>
+  <p>Ketua RW: Budi - <a href="https://wa.me/6281234567890" target="_blank">WA</a></p>
+  <p>Sekretaris: Ani - <a href="https://wa.me/6281234567891" target="_blank">WA</a></p>
+  <p>Bendahara: Sari - <a href="https://wa.me/6281234567892" target="_blank">WA</a></p>
+</section>
+
+<!-- Footer -->
+<footer class="footer p-3 text-center">
+  <p>&copy; 2025 RW 01 - Dukuh Polodadi, Desa Tarubasan, Kecamatan Karanganom, Kabupaten Klaten.</p>
+</footer>
+
+<!-- JS -->
+<script src="js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script>
+  // Lightbox options
   lightbox.option({
     'resizeDuration': 200,
     'wrapAround': true,
     'fadeDuration': 300,
-    'imageFadeDuration': 300,
-    'alwaysShowNavOnTouchDevices': true
+    'imageFadeDuration': 300
   });
-} else {
-  console.warn('Lightbox JS belum ter-load. Pastikan link script Lightbox ada di index.html.');
-}
+</script>
+</body>
+</html>
