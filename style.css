@@ -1,15 +1,153 @@
-body { font-family: 'Arial', sans-serif; background: #f0f6f0; margin:0; padding:0; scroll-behavior: smooth; }
-header { background: linear-gradient(90deg,#2e7d32,#66bb6a); color: white; text-align:center; height: 70vh; display:flex; flex-direction:column; justify-content:center; }
-header h1 { font-size:3rem; margin-bottom:10px; animation: fadeInDown 1s; }
-header p { font-size:1.3rem; animation: fadeInUp 1.2s; }
-.btn-cta { background:#ffffff; color:#2e7d32; font-weight:bold; padding:12px 30px; border-radius:50px; border:none; transition:0.3s; }
-.btn-cta:hover { background:#e0e0e0; color:#1b5e20; transform: scale(1.05); }
-section { padding:80px 20px; }
-.card { transition: transform 0.3s, box-shadow 0.3s; border-radius:15px; }
-.card:hover { transform: translateY(-7px); box-shadow:0 10px 25px rgba(0,0,0,0.25); }
-img { border-radius:15px; transition: transform 0.3s; }
-img:hover { transform: scale(1.05); }
-.footer { background:#1b5e20; color:white; padding:40px 20px; text-align:center; }
-.animate { opacity:0; transform: translateY(30px); transition: all 0.7s ease-in-out; }
-.animate.show { opacity:1; transform: translateY(0); }
-@keyframes fadeInDown { from {opacity:0; transform: translateY(-50px);} to {opacity:
+/* ==========================
+   Reset & Base
+========================== */
+body {
+  font-family: 'Arial', sans-serif;
+  background: #f0f6f0;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+a { text-decoration: none; }
+
+/* ==========================
+   Header
+========================== */
+header {
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  color: white;
+  text-align: center;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
+
+header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: fadeInDown 1s;
+}
+
+header p {
+  font-size: 1.3rem;
+  animation: fadeInUp 1.2s;
+}
+
+.btn-cta {
+  background: #ffffff;
+  color: #2e7d32;
+  font-weight: bold;
+  padding: 12px 30px;
+  border-radius: 50px;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-cta:hover {
+  background: #e0e0e0;
+  color: #1b5e20;
+  transform: scale(1.05);
+}
+
+/* ==========================
+   Sections & Cards
+========================== */
+section {
+  padding: 80px 20px;
+}
+
+.card {
+  transition: transform 0.4s, box-shadow 0.4s;
+  border-radius: 15px;
+  cursor: pointer;
+  background: white;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+}
+
+img {
+  border-radius: 15px;
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+
+img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* ==========================
+   Footer
+========================== */
+.footer {
+  background: #1b5e20;
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* ==========================
+   Scroll Animation
+========================== */
+.animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s ease-in-out;
+}
+
+.animate.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================
+   Keyframes
+========================== */
+@keyframes fadeInDown {
+  from {opacity:0; transform: translateY(-50px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+@keyframes fadeInUp {
+  from {opacity:0; transform: translateY(50px);}
+  to {opacity:1; transform: translateY(0);}
+}
+
+/* ==========================
+   Form Aspirasi
+========================== */
+input[type=file] {
+  padding: 6px;
+}
+
+#form-aspirasi p {
+  font-size: 0.9rem;
+  color: #2e7d32;
+  margin-top: 5px;
+}
+
+/* ==========================
+   Lightbox
+========================== */
+.lightboxOverlay {
+  background: rgba(0,0,0,0.85) !important;
+  z-index: 1050;
+}
+
+.lightbox {
+  border-radius: 15px !important;
+}
+
+/* ==========================
+   Responsive
+========================== */
+@media (max-width: 768px) {
+  header h1 { font-size: 2.2rem; }
+  header p { font-size: 1.1rem; }
+  .btn-cta { padding: 10px 20px; }
+}
