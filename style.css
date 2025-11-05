@@ -1,72 +1,58 @@
-/* Styling untuk header */
-header h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 0;
 }
 
-header p {
-  font-size: 1.3rem;
+.aspirasi-section {
+  max-width: 500px;
+  background: #fff;
+  padding: 25px;
+  margin: 60px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Untuk kartu dengan data CSV */
-.card {
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+h2 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 20px;
 }
 
-.card:hover {
-  transform: translateY(-7px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
 }
 
-.card h5 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 14px;
 }
 
-.card p {
-  font-size: 1rem;
-  color: #555;
+button {
+  display: block;
+  width: 100%;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-/* Gambar untuk galeri */
-.img-fluid {
-  max-width: 100%;
-  height: auto;
-  border-radius: 15px;
+button:hover {
+  background: #0056b3;
 }
 
-.img-fluid:hover {
-  transform: scale(1.05);
-}
-
-/* Mengatur tampilan responsif */
-@media (max-width: 768px) {
-  .col-md-4 {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  .col-md-6 {
-    width: 100%;
-  }
-  header h1 {
-    font-size: 2.5rem;
-  }
-  header p {
-    font-size: 1.2rem;
-  }
-}
-
-/* Animasi untuk elemen yang masuk pada scroll */
-.animate {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.7s ease-in-out;
-}
-
-.animate.show {
-  opacity: 1;
-  transform: translateY(0);
+#status {
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
 }
