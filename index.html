@@ -1,191 +1,28 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RW 01 Dukuh Polodadi</title>
-
-  <!-- Bootstrap & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css" rel="stylesheet">
-
-  <style>
-    body { font-family: 'Arial', sans-serif; background: #f0f6f0; margin: 0; scroll-behavior: smooth; }
-    header { background: linear-gradient(90deg,#2e7d32,#66bb6a); color: white; text-align:center; height: 70vh; display:flex; flex-direction:column; justify-content:center; }
-    header h1 { font-size:3rem; margin-bottom:10px; animation: fadeInDown 1s; }
-    header p { font-size:1.3rem; animation: fadeInUp 1.2s; }
-    .btn-cta { background:#ffffff; color:#2e7d32; font-weight:bold; padding:12px 30px; border-radius:50px; border:none; transition:0.3s; }
-    .btn-cta:hover { background:#e0e0e0; color:#1b5e20; transform: scale(1.05); }
-    section { padding:80px 20px; }
-    .card { transition: transform 0.3s, box-shadow 0.3s; border-radius:15px; }
-    .card:hover { transform: translateY(-7px); box-shadow:0 10px 25px rgba(0,0,0,0.25); }
-    img { border-radius:15px; transition: transform 0.3s; }
-    img:hover { transform: scale(1.05); }
-    .footer { background:#1b5e20; color:white; padding:40px 20px; text-align:center; }
-    .animate { opacity:0; transform: translateY(30px); transition: all 0.7s ease-in-out; }
-    .animate.show { opacity:1; transform: translateY(0); }
-    @keyframes fadeInDown { from {opacity:0; transform: translateY(-50px);} to {opacity:1; transform: translateY(0);} }
-    @keyframes fadeInUp { from {opacity:0; transform: translateY(50px);} to {opacity:1; transform: translateY(0);} }
-    @media (max-width: 768px) {
-      .col-md-4, .col-md-6 { width: 100%; margin-bottom: 20px; }
-      header h1 { font-size: 2.2rem; }
-      header p { font-size: 1rem; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aspirasi Warga RW 01</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-<header class="header text-center">
-  <h1>RW 01 - Dukuh Polodadi</h1>
-  <p>Desa Tarubasan, Kecamatan Karanganom, Kabupaten Klaten</p>
-  <a href="#form-aspirasi" class="btn btn-cta mt-3">Kirim Aspirasi</a>
-</header>
+  <section class="aspirasi-section">
+    <h2>Kirim Aspirasi Warga RW 01</h2>
 
-<!-- Saldo Kas -->
-<section class="section bg-light p-4">
-  <h2>Saldo Kas RW</h2>
-  <div class="row animate" id="list-saldo"></div>
-</section>
+    <form id="aspirasiForm">
+      <label for="nama">Nama</label>
+      <input type="text" id="nama" required placeholder="Masukkan nama Anda">
 
-<!-- Berita & Pengumuman -->
-<section class="section p-4">
-  <h2>Berita & Pengumuman</h2>
-  <div class="row animate" id="list-berita"></div>
-</section>
+      <label for="pesan">Pesan / Aspirasi</label>
+      <textarea id="pesan" rows="4" required placeholder="Tulis aspirasi Anda di sini..."></textarea>
 
-<!-- Galeri Kegiatan -->
-<section class="section bg-light p-4">
-  <h2>Galeri Kegiatan</h2>
-  <div class="row animate" id="list-galeri"></div>
-</section>
+      <button type="submit">Kirim</button>
+      <div id="status"></div>
+    </form>
+  </section>
 
-<!-- Bisnis Warga -->
-<section class="section p-4">
-  <h2>Bisnis Warga</h2>
-  <div class="row animate" id="list-bisnis"></div>
-</section>
-
-<!-- Formulir Aspirasi -->
-<section class="section bg-light p-4">
-  <h2>Kirim Aspirasi / Keluhan</h2>
-  <form id="form-aspirasi" class="mb-3">
-    <input name="nama" class="form-control mb-2" placeholder="Nama Anda" required>
-    <textarea name="pesan" class="form-control mb-2" placeholder="Tulis aspirasi atau keluhan..." required></textarea>
-    <button class="btn btn-success w-100" type="submit">Kirim</button>
-  </form>
-</section>
-
-<!-- Peta Lokasi -->
-<section class="section p-4">
-  <h2>Peta Lokasi RW 01</h2>
-  <div class="ratio ratio-16x9 animate">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.12345!2d110.5632!3d-7.5735!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a69bb311ea8ff%3A0x123456789abcdef!2sRW01+Dukuh+Polodadi!5e0!3m2!1sid!2sid!4v1697670000000!5m2!1sid!2sid"
-      style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-  </div>
-</section>
-
-<!-- Kontak Pengurus -->
-<section class="section bg-light p-4 text-center">
-  <h2>Kontak Pengurus RW</h2>
-  <p>Ketua RW: Budi - <a href="https://wa.me/6281234567890" target="_blank">WA</a></p>
-  <p>Sekretaris: Ani - <a href="https://wa.me/6281234567891" target="_blank">WA</a></p>
-  <p>Bendahara: Sari - <a href="https://wa.me/6281234567892" target="_blank">WA</a></p>
-</section>
-
-<footer class="footer p-3 text-center">
-  <p>&copy; 2025 RW 01 - Dukuh Polodadi, Desa Tarubasan, Karanganom, Klaten.</p>
-</footer>
-
-<!-- JS Library -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-<script>
-// === KONFIGURASI ===
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzc1OgDo3VEfI53eIwcKEQ-gahCh4S4DhXWp8JmeGaQbX5X1E52epgsXCXD5iU1fnbk/exec';
-
-// URL CSV Google Sheets
-const saldoURL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=0&single=true&output=csv';
-const beritaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=2090908824&single=true&output=csv';
-const galeriURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=1520446044&single=true&output=csv';
-const bisnisURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=227320896&single=true&output=csv';
-
-// === FUNGSI UMUM ===
-function fetchCSV(url, callback) {
-  Papa.parse(url, { download: true, header: true, complete: res => callback(res.data) });
-}
-
-// === SALDO ===
-fetchCSV(saldoURL, data => {
-  const c = document.querySelector('#list-saldo');
-  data.forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'col-md-4 card p-3 m-2 text-center';
-    div.innerHTML = `<h5>${r.Kategori}</h5><p>${r.Saldo}</p>`;
-    c.appendChild(div);
-  });
-});
-
-// === BERITA ===
-fetchCSV(beritaURL, data => {
-  const c = document.querySelector('#list-berita');
-  data.forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'col-md-6 card p-3 m-2';
-    div.innerHTML = `<h5>${r.Judul}</h5><small>${r.Tanggal}</small><p>${r.Isi}</p>`;
-    c.appendChild(div);
-  });
-});
-
-// === GALERI ===
-fetchCSV(galeriURL, data => {
-  const c = document.querySelector('#list-galeri');
-  data.forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'col-md-4 mb-3';
-    div.innerHTML = `<a href="${r.URL}" data-lightbox="galeri" data-title="${r.Judul}"><img src="${r.URL}" class="img-fluid rounded"></a>`;
-    c.appendChild(div);
-  });
-});
-
-// === BISNIS ===
-fetchCSV(bisnisURL, data => {
-  const c = document.querySelector('#list-bisnis');
-  data.forEach(r => {
-    const div = document.createElement('div');
-    div.className = 'col-md-4 card p-3 m-2';
-    div.innerHTML = `<h5>${r.Nama}</h5><p>${r.Deskripsi}</p><p>Harga: ${r.Harga}</p><p>Kontak: ${r.Kontak}</p>`;
-    c.appendChild(div);
-  });
-});
-
-// === ANIMASI SCROLL ===
-const anims = document.querySelectorAll('.animate');
-function showOnScroll() {
-  anims.forEach(el => {
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight - 100) el.classList.add('show');
-  });
-}
-window.addEventListener('scroll', showOnScroll);
-window.addEventListener('load', showOnScroll);
-
-// === FORM ASPIRASI ===
-const form = document.querySelector('#form-aspirasi');
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const fd = new FormData(form);
-  fetch(scriptURL, { method: 'POST', body: fd })
-    .then(res => {
-      alert('✅ Aspirasi berhasil dikirim!');
-      form.reset();
-    })
-    .catch(err => alert('❌ Gagal mengirim aspirasi. Coba lagi nanti.'));
-});
-</script>
-
+  <script src="js/script.js"></script>
 </body>
 </html>
