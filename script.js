@@ -1,4 +1,4 @@
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzdV5Sb9z2blkt2-Q-_2FoDaty7SmDYTYVWXNgjGmbCdsu7gpSd_zwCanzGObA_4Ke-/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbzwyL70qrsi_OxuCJh5evxiPgyn-9xcGnYbOQifK6cEKoi-gAP8Ekmzm8GQ-2LLcgBP/exec';
 const form = document.getElementById('form-aspirasi');
 const alertBox = document.getElementById('alertBox');
 
