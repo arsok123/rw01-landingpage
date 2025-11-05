@@ -1,27 +1,92 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aspirasi Warga RW 01</title>
+  <title>Form Aspirasi Warga RW 01</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      font-family: "Nunito", sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 450px;
+      background: white;
+      margin: 60px auto;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #2b6cb0;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    input, textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      transition: 0.3s;
+    }
+    input:focus, textarea:focus {
+      border-color: #2b6cb0;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #1e4e8c;
+    }
+    .alert {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .alert.success {
+      color: green;
+    }
+    .alert.error {
+      color: red;
+    }
+  </style>
 </head>
 <body>
 
-  <section class="aspirasi-section">
-    <h2>Kirim Aspirasi Warga RW 01</h2>
+  <div class="container">
+    <h2>💬 Form Aspirasi Warga RW 01</h2>
+    <form id="form-aspirasi">
+      <label for="nama">Nama:</label>
+      <input type="text" id="nama" name="nama" placeholder="Masukkan nama Anda" required>
 
-    <form id="aspirasiForm">
-      <label for="nama">Nama</label>
-      <input type="text" id="nama" required placeholder="Masukkan nama Anda">
+      <label for="pesan">Aspirasi / Pesan:</label>
+      <textarea id="pesan" name="pesan" rows="4" placeholder="Tulis aspirasi Anda..." required></textarea>
 
-      <label for="pesan">Pesan / Aspirasi</label>
-      <textarea id="pesan" rows="4" required placeholder="Tulis aspirasi Anda di sini..."></textarea>
-
-      <button type="submit">Kirim</button>
-      <div id="status"></div>
+      <button type="submit">Kirim Aspirasi</button>
     </form>
-  </section>
+    <div id="alertBox" class="alert"></div>
+  </div>
 
   <script src="js/script.js"></script>
 </body>
