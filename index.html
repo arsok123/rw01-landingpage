@@ -69,10 +69,11 @@
 <!-- Formulir Aspirasi -->
 <section class="section bg-light p-4">
   <h2>Formulir Aspirasi / Keluhan</h2>
-  <form id="form-aspirasi" class="mb-3" action="https://script.google.com/macros/s/AKfycbzc1OgDo3VEfI53eIwcKEQ-gahCh4S4DhXWp8JmeGaQbX5X1E52epgsXCXD5iU1fnbk/exec" method="POST">
+  <form id="form-aspirasi" class="mb-3">
     <input name="nama" class="form-control mb-2" placeholder="Nama" required>
     <textarea name="pesan" class="form-control mb-2" placeholder="Pesan" required></textarea>
-    <button class="btn btn-success">Kirim</button>
+    <input type="file" class="form-control mb-2">
+    <button class="btn btn-success w-100">Kirim</button>
   </form>
   <div id="list-aspirasi" class="animate"></div>
 </section>
@@ -101,16 +102,20 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
 <script>
-// URLs CSV Google Sheets
+// URL Google Sheets (ubah sesuai milikmu)
 const beritaURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=2090908824&single=true&output=csv';
 const galeriURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=1520446044&single=true&output=csv';
 const bisnisURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=227320896&single=true&output=csv';
 const saldoURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5TYyiIj63CPju66ZkviN7MsolUxbx0v99GYBg2P23PYtJOdvk0rpMaD2a70lVjVqKf/pub?gid=0&single=true&output=csv';
 
-// Fetch CSV via PapaParse
+// Ganti dengan URL Apps Script kamu (sudah di-deploy sebagai Web App)
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx1234567890abcdefghijklmno/exec';
+
+// Fungsi umum fetch CSV
 function fetchCSV(url, callback) {
-  Papa.parse(url, { download: true, header: true, complete: results => callback(results.data) });
+  Papa.parse(url, { download: true, header: true, complete: function(results) { callback(results.data); } });
 }
 
 // Saldo Kas
@@ -141,8 +146,7 @@ fetchCSV(galeriURL, data => {
   data.forEach(row => {
     const div = document.createElement('div');
     div.className = 'col-md-4 mb-3';
-    div.innerHTML = `<a href="${row.URL}" data-lightbox="galeri" data-title="${row.Judul}">
-      <img src="${row.URL}" class="img-fluid rounded"></a>`;
+    div.innerHTML = `<a href="${row.URL}" data-lightbox="galeri" data-title="${row.Judul}"><img src="${row.URL}" class="img-fluid rounded"></a>`;
     container.appendChild(div);
   });
 });
@@ -157,6 +161,28 @@ fetchCSV(bisnisURL, data => {
     container.appendChild(div);
   });
 });
+
+// Animasi Scroll
+const animElements = document.querySelectorAll('.animate');
+function showOnScroll() {
+  animElements.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 100) el.classList.add('show');
+  });
+}
+window.addEventListener('scroll', showOnScroll);
+window.addEventListener('load', showOnScroll);
+
+// Formulir Aspirasi
+const form = document.querySelector('#form-aspirasi');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  fetch(scriptURL, { method: 'POST', body: formData })
+    .then(response => alert('✅ Aspirasi berhasil dikirim!'))
+    .catch(error => alert('❌ Gagal mengirim aspirasi.'));
+});
 </script>
+
 </body>
 </html>
