@@ -1,12 +1,16 @@
 const scriptURL = 'https://script.google.com/macros/s/AKfycbzdV5Sb9z2blkt2-Q-_2FoDaty7SmDYTYVWXNgjGmbCdsu7gpSd_zwCanzGObA_4Ke-/exec';
+const form = document.getElementById('form-aspirasi');
+const alertBox = document.getElementById('alertBox');
 
-document.querySelector('#form-aspirasi').addEventListener('submit', function(e) {
+form.addEventListener('submit', e => {
   e.preventDefault();
-  const nama = this.elements['nama'].value.trim();
-  const pesan = this.elements['pesan'].value.trim();
+  alertBox.style.display = 'none';
+
+  const nama = form.nama.value.trim();
+  const pesan = form.pesan.value.trim();
 
   if (!nama || !pesan) {
-    alert('Nama dan pesan wajib diisi.');
+    showAlert('❗ Nama dan pesan wajib diisi.', 'error');
     return;
   }
 
@@ -14,22 +18,24 @@ document.querySelector('#form-aspirasi').addEventListener('submit', function(e) 
   formData.append('nama', nama);
   formData.append('pesan', pesan);
 
-  fetch(scriptURL, {
-    method: 'POST',
-    body: formData
-  })
-  .then(res => res.text())
-  .then(text => {
-    console.log('Response dari server:', text);
-    if (text.includes('OK') || text.includes('SUKSES')) {
-      alert('✅ Aspirasi berhasil dikirim!');
-      this.reset();
-    } else {
-      alert('❌ Gagal mengirim aspirasi. Server memberi respons: ' + text);
-    }
-  })
-  .catch(err => {
-    console.error('Error kirim aspirasi:', err);
-    alert('❌ Gagal mengirim aspirasi. Coba lagi nanti.');
-  });
+  fetch(scriptURL, { method: 'POST', body: formData })
+    .then(res => res.text())
+    .then(text => {
+      if (text.includes('OK') || text.includes('SUKSES')) {
+        showAlert('✅ Aspirasi berhasil dikirim. Terima kasih!', 'success');
+        form.reset();
+      } else {
+        showAlert('❌ Gagal mengirim aspirasi. Coba lagi nanti.', 'error');
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      showAlert('❌ Gagal mengirim aspirasi. Periksa koneksi Anda.', 'error');
+    });
 });
+
+function showAlert(msg, type) {
+  alertBox.textContent = msg;
+  alertBox.className = `alert ${type}`;
+  alertBox.style.display = 'block';
+}
