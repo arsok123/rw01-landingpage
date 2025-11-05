@@ -69,10 +69,9 @@
 <!-- Formulir Aspirasi -->
 <section class="section bg-light p-4">
   <h2>Formulir Aspirasi / Keluhan</h2>
-  <form id="form-aspirasi" class="mb-3">
+  <form id="form-aspirasi" class="mb-3" action="https://script.google.com/macros/s/AKfycbzc1OgDo3VEfI53eIwcKEQ-gahCh4S4DhXWp8JmeGaQbX5X1E52epgsXCXD5iU1fnbk/exec" method="POST">
     <input name="nama" class="form-control mb-2" placeholder="Nama" required>
     <textarea name="pesan" class="form-control mb-2" placeholder="Pesan" required></textarea>
-    <input type="file" class="form-control mb-2">
     <button class="btn btn-success">Kirim</button>
   </form>
   <div id="list-aspirasi" class="animate"></div>
@@ -111,7 +110,7 @@ const saldoURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGqc1G_4X3ig5
 
 // Fetch CSV via PapaParse
 function fetchCSV(url, callback) {
-  Papa.parse(url, { download: true, header: true, complete: function(results) { callback(results.data); } });
+  Papa.parse(url, { download: true, header: true, complete: results => callback(results.data) });
 }
 
 // Saldo Kas
@@ -122,6 +121,7 @@ fetchCSV(saldoURL, data => {
     div.className = 'col-md-4 card p-3 m-2 text-center';
     div.innerHTML = `<h5>${row.Kategori}</h5><p>${row.Saldo}</p>`;
     container.appendChild(div);
+  });
 });
 
 // Berita
@@ -132,6 +132,7 @@ fetchCSV(beritaURL, data => {
     div.className = 'col-md-6 card p-3 m-2';
     div.innerHTML = `<h5>${row.Judul}</h5><small>${row.Tanggal}</small><p>${row.Isi}</p>`;
     container.appendChild(div);
+  });
 });
 
 // Galeri
@@ -143,6 +144,7 @@ fetchCSV(galeriURL, data => {
     div.innerHTML = `<a href="${row.URL}" data-lightbox="galeri" data-title="${row.Judul}">
       <img src="${row.URL}" class="img-fluid rounded"></a>`;
     container.appendChild(div);
+  });
 });
 
 // Bisnis Warga
@@ -153,6 +155,7 @@ fetchCSV(bisnisURL, data => {
     div.className = 'col-md-4 card p-3 m-2';
     div.innerHTML = `<h5>${row.Nama}</h5><p>${row.Deskripsi}</p><p>Harga: ${row.Harga}</p><p>Kontak: ${row.Kontak}</p>`;
     container.appendChild(div);
+  });
 });
 </script>
 </body>
