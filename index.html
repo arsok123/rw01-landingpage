@@ -2,43 +2,52 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aspirasi Warga RW 01</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Form Aspirasi RW 01</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, textarea, button { width: 100%; margin: 8px 0; padding: 8px; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>💬 Form Aspirasi Warga RW 01</h2>
-    <form 
-      action="https://script.google.com/macros/s/AKfycbxfB5sx10Y8ChWcDegOxwItZCezDvY6IBtI_sr8PfItLpmA9D1-xKATrja2kpshTdB-/exec" 
-      method="POST" 
-      id="aspirasiForm"
-    >
-      <label for="nama">Nama:</label>
-      <input type="text" id="nama" name="nama" required>
-
-      <label for="rt">RT:</label>
-      <input type="text" id="rt" name="rt" required>
-
-      <label for="pesan">Aspirasi:</label>
-      <textarea id="pesan" name="pesan" rows="4" required></textarea>
-
-      <button type="submit">Kirim Aspirasi</button>
-    </form>
-
-    <div id="pesanSukses" style="display:none;">
-      ✅ Aspirasi berhasil dikirim! Terima kasih atas partisipasi Anda.
-    </div>
-  </div>
+  <h2>Kirim Aspirasi Warga</h2>
+  <input type="text" id="nama" placeholder="Nama Anda" required />
+  <textarea id="pesan" placeholder="Tulis aspirasi Anda" required></textarea>
+  <button onclick="kirimAspirasi()">Kirim</button>
+  <p id="status"></p>
 
   <script>
-    const form = document.getElementById('aspirasiForm');
-    const pesanSukses = document.getElementById('pesanSukses');
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9_s4gJXWv0y41OOkJt60yx4mL3um0kuIen1CuqbfFP7oLP2nOP1FodUm1tceUPHbv/exec';
 
-    form.addEventListener('submit', () => {
-      form.style.display = 'none';
-      pesanSukses.style.display = 'block';
-    });
+    async function kirimAspirasi() {
+      const nama = document.getElementById('nama').value;
+      const pesan = document.getElementById('pesan').value;
+      const status = document.getElementById('status');
+
+      if (!nama || !pesan) {
+        status.textContent = '❌ Harap isi semua kolom.';
+        return;
+      }
+
+      status.textContent = '⏳ Mengirim...';
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nama, pesan })
+        });
+        const result = await res.json();
+        if (result.result === 'success') {
+          status.textContent = '✅ Aspirasi berhasil dikirim.';
+          document.getElementById('nama').value = '';
+          document.getElementById('pesan').value = '';
+        } else {
+          status.textContent = '❌ Gagal: ' + result.message;
+        }
+      } catch (err) {
+        status.textContent = '❌ Terjadi kesalahan koneksi.';
+      }
+    }
   </script>
 </body>
 </html>
