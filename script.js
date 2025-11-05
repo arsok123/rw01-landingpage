@@ -1,41 +1,21 @@
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzwyL70qrsi_OxuCJh5evxiPgyn-9xcGnYbOQifK6cEKoi-gAP8Ekmzm8GQ-2LLcgBP/exec';
-const form = document.getElementById('form-aspirasi');
-const alertBox = document.getElementById('alertBox');
+const ID_SHEET = '1OpOtZYm3FROXfrtp2VqVYnCEavAniniGnhENndGpXhc';
+const NAMA_SHEET = 'FormAspirasi';  // GANTI sesuai nama tab di sheet kamu
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  alertBox.style.display = 'none';
+function doPost(e) {
+  try {
+    const ss = SpreadsheetApp.openById(ID_SHEET);
+    const sheet = ss.getSheetByName(NAMA_SHEET);
+    
+    const data = JSON.parse(e.postData.contents);
+    sheet.appendRow([new Date(), data.nama, data.pesan]);
 
-  const nama = form.nama.value.trim();
-  const pesan = form.pesan.value.trim();
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
 
-  if (!nama || !pesan) {
-    showAlert('❗ Nama dan pesan wajib diisi.', 'error');
-    return;
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ result: 'error', message: error }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-
-  const formData = new FormData();
-  formData.append('nama', nama);
-  formData.append('pesan', pesan);
-
-  fetch(scriptURL, { method: 'POST', body: formData })
-    .then(res => res.text())
-    .then(text => {
-      if (text.includes('OK') || text.includes('SUKSES')) {
-        showAlert('✅ Aspirasi berhasil dikirim. Terima kasih!', 'success');
-        form.reset();
-      } else {
-        showAlert('❌ Gagal mengirim aspirasi. Coba lagi nanti.', 'error');
-      }
-    })
-    .catch(err => {
-      console.error('Error:', err);
-      showAlert('❌ Gagal mengirim aspirasi. Periksa koneksi Anda.', 'error');
-    });
-});
-
-function showAlert(msg, type) {
-  alertBox.textContent = msg;
-  alertBox.className = `alert ${type}`;
-  alertBox.style.display = 'block';
 }
