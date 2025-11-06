@@ -1,9 +1,8 @@
 const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
 
-
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  
+
   const nama = document.getElementById("nama").value.trim();
   const pesan = document.getElementById("pesan").value.trim();
   const notif = document.getElementById("notif");
@@ -15,8 +14,9 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 
   const tanggal = new Date().toLocaleString("id-ID");
-  const data = {
-    tabId: "FormAspirasi",
+
+  // Format body sesuai dokumentasi NoCodeAPI
+  const body = {
     values: [[tanggal, nama, pesan]]
   };
 
@@ -24,24 +24,24 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(body)
     });
 
     const result = await response.json();
-    console.log(result);
+    console.log("Hasil response:", result);
 
-    if (result.message === "Success") {
+    if (response.ok && result.message === "Success") {
       notif.textContent = "✅ Aspirasi berhasil dikirim!";
       notif.className = "notif success";
       document.getElementById("aspirasiForm").reset();
-      muatData(); // refresh daftar setelah kirim
+      muatData();
     } else {
-      notif.textContent = "❌ Terjadi kesalahan saat mengirim data.";
+      notif.textContent = "❌ Gagal mengirim data: " + (result.message || "Periksa konsol.");
       notif.className = "notif error";
     }
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error("Error:", err);
     notif.textContent = "❌ Tidak dapat terhubung ke server.";
     notif.className = "notif error";
   }
@@ -52,11 +52,12 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(`${endpoint}?tabId=FormAspirasi`);
+    const res = await fetch(endpoint.replace("?tabId=FormAspirasi", "") + "?tabId=FormAspirasi");
     const json = await res.json();
+    console.log("Data sheet:", json);
 
-    if (json.data && json.data.length > 0) {
-      const rows = json.data.slice(1); // lewati header jika ada
+    if (json.data && json.data.length > 1) {
+      const rows = json.data.slice(1); // lewati header
       tabelBody.innerHTML = rows.map(r => `
         <tr>
           <td>${r[0] || "-"}</td>
@@ -69,7 +70,7 @@ async function muatData() {
     }
 
   } catch (err) {
-    console.error(err);
+    console.error("Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
 }
