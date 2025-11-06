@@ -1,3 +1,4 @@
+// ⚠️ Tanpa ?tabId di URL
 const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
 
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
@@ -15,7 +16,7 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
 
   const tanggal = new Date().toLocaleString("id-ID");
 
-  // ✅ Sekarang tabId dikirim di body, bukan URL
+  // ✅ tabId di body
   const body = {
     tabId: "FormAspirasi",
     values: [[tanggal, nama, pesan]]
@@ -55,6 +56,7 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
+    // untuk GET masih pakai tabId
     const res = await fetch(endpoint + "?tabId=FormAspirasi");
     const json = await res.json();
     console.log("📄 Data sheet:", json);
