@@ -1,4 +1,5 @@
 const form = document.getElementById("aspirasiForm");
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -6,24 +7,36 @@ form.addEventListener("submit", async (e) => {
   const pesan = document.getElementById("pesan").value;
   const tanggal = new Date().toLocaleString("id-ID");
 
-  // Format HARUS 2D array
-  const data = {
+  // Format HARUS array 2 dimensi (2D array)
+  const dataKirim = {
     values: [[tanggal, nama, pesan]]
   };
 
-  console.log("Data dikirim:", data);
+  console.log("📄 Data sheet:", dataKirim);
 
-  const response = await fetch(
-    "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
+  try {
+    const response = await fetch(
+      "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dataKirim)
+      }
+    );
+
+    const result = await response.json();
+    console.log("📦 Hasil response:", result);
+
+    if (response.ok) {
+      alert("✅ Data berhasil dikirim ke Google Sheets!");
+      form.reset();
+    } else {
+      alert("⚠️ Gagal kirim data: " + (result.error || "Tidak diketahui"));
     }
-  );
-
-  const result = await response.json();
-  console.log("Hasil response:", result);
+  } catch (err) {
+    console.error("❌ Error:", err);
+    alert("Terjadi kesalahan koneksi.");
+  }
 });
