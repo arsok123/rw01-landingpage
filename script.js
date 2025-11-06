@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfO-C3ZIh4HdzYoTxui4JYEeHQLYo6S3OuQBo2_OG6yx4NgnvkrpUp6S_UYA0fR3k/exec"; // Ganti dengan URL milikmu
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzDULygNN3qEcPGA8hLtjuIu_Hy0RSYZZQIDfokMfYc4pM3JK2Qd-gOKGW6G5IChUW/exec"; // Ganti dengan URL milikmu
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("aspirasiForm");
