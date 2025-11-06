@@ -21,11 +21,20 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
 
   try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+    let response;
+try {
+  response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+} catch (networkError) {
+  console.error("🌐 Network error saat fetch:", networkError);
+  notif.textContent = "❌ Tidak bisa menghubungi server NocodeAPI.";
+  notif.className = "notif error";
+  return;
+}
+
 
     const result = await response.json();
     console.log("📦 Hasil response:", result);
