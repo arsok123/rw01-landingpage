@@ -3,97 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Form Aspirasi RW 01</title>
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: #f7f8fa;
-      margin: 0; padding: 0;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh;
-    }
-    form {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 90%; max-width: 400px;
-    }
-    h2 { text-align: center; color: #2c7a7b; }
-    label { font-weight: bold; display: block; margin-top: 15px; }
-    input, textarea {
-      width: 100%; padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      background: #2c7a7b;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover { background: #276a6d; }
-    .notif {
-      text-align: center;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style>
+  <title>Form Aspirasi Warga RW 01</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <form id="aspirasiForm">
-    <h2>Form Aspirasi Warga RW 01</h2>
-    <label for="nama">Nama:</label>
-    <input type="text" id="nama" name="nama" required>
+  <div class="container">
+    <form id="aspirasiForm">
+      <h2>🗳️ Form Aspirasi Warga RW 01</h2>
 
-    <label for="pesan">Pesan / Aspirasi:</label>
-    <textarea id="pesan" name="pesan" rows="4" required></textarea>
+      <label for="nama">Nama:</label>
+      <input type="text" id="nama" name="nama" placeholder="Masukkan nama Anda" required>
 
-    <button type="submit">Kirim Aspirasi</button>
-    <div id="notif" class="notif"></div>
-  </form>
+      <label for="pesan">Pesan / Aspirasi:</label>
+      <textarea id="pesan" name="pesan" rows="4" placeholder="Tulis pesan atau aspirasi Anda di sini" required></textarea>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfO-C3ZIh4HdzYoTxui4JYEeHQLYo6S3OuQBo2_OG6yx4NgnvkrpUp6S_UYA0fR3k/exec"; // GANTI dengan URL milikmu
+      <button type="submit">Kirim Aspirasi</button>
+      <div id="notif" class="notif"></div>
+    </form>
 
-    document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const notif = document.getElementById("notif");
-      notif.textContent = "Mengirim...";
-      notif.style.color = "#555";
+    <div id="rekapContainer" class="rekap">
+      <h3>📋 Daftar Aspirasi Warga</h3>
+      <table id="tabelAspirasi">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama</th>
+            <th>Pesan</th>
+          </tr>
+        </thead>
+        <tbody id="tabelBody">
+          <tr><td colspan="3" align="center">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-      const data = {
-        nama: document.getElementById("nama").value.trim(),
-        pesan: document.getElementById("pesan").value.trim()
-      };
-
-      try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        const json = await res.json();
-        if (json.result === "success") {
-          notif.textContent = "✅ " + json.message;
-          notif.style.color = "green";
-          e.target.reset();
-        } else {
-          notif.textContent = "⚠️ " + json.message;
-          notif.style.color = "red";
-        }
-      } catch (err) {
-        notif.textContent = "❌ Gagal mengirim: " + err.message;
-        notif.style.color = "red";
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
