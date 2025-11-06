@@ -1,8 +1,7 @@
-// Endpoint dasar
-const baseEndpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
-const sheetName = "FormAspirasi";
+// ✅ Ganti dengan endpoint NoCodeAPI kamu sendiri
+const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
 
-// Event submit form
+// 📩 Kirim data aspirasi
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -18,49 +17,47 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
 
   const tanggal = new Date().toLocaleString("id-ID");
 
-  // Format body sesuai dokumentasi NoCodeAPI
+  // ✅ Format sesuai permintaan NoCodeAPI (2D array)
   const body = {
     values: [[tanggal, nama, pesan]]
   };
 
   try {
-    // POST TANPA ?tabId
-    const response = await fetch(baseEndpoint, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
     const result = await response.json();
-    console.log("Hasil response:", result);
+    console.log("📦 Hasil response:", result);
 
     if (response.ok && result.message === "Success") {
       notif.textContent = "✅ Aspirasi berhasil dikirim!";
       notif.className = "notif success";
       document.getElementById("aspirasiForm").reset();
-      muatData();
+      muatData(); // refresh tabel
     } else {
       notif.textContent = "❌ Gagal mengirim data: " + (result.message || "Periksa konsol.");
       notif.className = "notif error";
     }
 
   } catch (err) {
-    console.error("Error:", err);
+    console.error("🚫 Error:", err);
     notif.textContent = "❌ Tidak dapat terhubung ke server.";
     notif.className = "notif error";
   }
 });
 
-// Fungsi untuk GET data dari sheet
+// 📊 Fungsi untuk memuat data aspirasi
 async function muatData() {
   const tabelBody = document.getElementById("tabelBody");
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    // GET DENGAN ?tabId
-    const res = await fetch(`${baseEndpoint}?tabId=${sheetName}`);
+    const res = await fetch(endpoint);
     const json = await res.json();
-    console.log("Data sheet:", json);
+    console.log("📄 Data sheet:", json);
 
     if (json.data && json.data.length > 1) {
       const rows = json.data.slice(1); // lewati header
@@ -76,10 +73,10 @@ async function muatData() {
     }
 
   } catch (err) {
-    console.error("Gagal memuat:", err);
+    console.error("❌ Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
 }
 
-// Jalankan saat halaman dimuat
+// 🟢 Jalankan saat halaman dimuat
 muatData();
