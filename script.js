@@ -1,9 +1,6 @@
-// ========== KONFIGURASI ==========
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
-const SHEET_NAME = "FormAspirasi";
-// =================================
+// ✅ Endpoint dengan tabId di URL (versi lama NoCodeAPI)
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
 
-// Event kirim form
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -17,27 +14,23 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 
   const tanggal = new Date().toLocaleString("id-ID");
-  const dataKirim = { tabId: SHEET_NAME, values: [[tanggal, nama, pesan]] };
 
-  console.log("📤 Data yang akan dikirim:", dataKirim);
+  // ✅ Format body sesuai Google Sheets API
+  const body = {
+    values: [[tanggal, nama, pesan]]
+  };
+
+  console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
 
   try {
-    // Kirim data ke Google Sheets
     const res = await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dataKirim)
+      body: JSON.stringify(body)
     });
 
     const hasil = await res.json();
-    console.log("📦 Respons NocodeAPI:", hasil);
-
-    // Jika endpoint lama (masih butuh ?tabId di URL)
-    if (hasil.error && hasil.error.includes("2D array")) {
-      console.warn("⚙️ Deteksi: endpoint versi lama. Mengulang dengan ?tabId di URL...");
-      await kirimDenganUrl(tanggal, nama, pesan);
-      return;
-    }
+    console.log("📦 Hasil response:", hasil);
 
     if (res.ok && hasil.message === "Success") {
       tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
@@ -52,39 +45,12 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 });
 
-// Fallback untuk endpoint lama
-async function kirimDenganUrl(tanggal, nama, pesan) {
-  const url = `${ENDPOINT}?tabId=${SHEET_NAME}`;
-  const data = { values: [[tanggal, nama, pesan]] };
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const hasil = await res.json();
-    console.log("📦 Respons (mode URL):", hasil);
-
-    if (res.ok && hasil.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim (mode URL)!", "success");
-      document.getElementById("aspirasiForm").reset();
-      muatData();
-    } else {
-      tampilkanNotif("❌ Gagal kirim (mode URL): " + (hasil.error || hasil.message), "error");
-    }
-  } catch (err) {
-    tampilkanNotif("❌ Kesalahan koneksi (mode URL).", "error");
-  }
-}
-
-// Muat data tabel
 async function muatData() {
   const tabelBody = document.getElementById("tabelBody");
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
+    const res = await fetch(ENDPOINT);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
 
@@ -100,18 +66,17 @@ async function muatData() {
     } else {
       tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
+
   } catch (err) {
     console.error("❌ Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
 }
 
-// Fungsi utilitas
 function tampilkanNotif(pesan, tipe) {
   const notif = document.getElementById("notif");
   notif.textContent = pesan;
   notif.className = `notif ${tipe}`;
 }
 
-// Jalankan saat load
 muatData();
