@@ -1,4 +1,4 @@
-const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
+const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
 
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -14,10 +14,8 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 
   const tanggal = new Date().toLocaleString("id-ID");
-
   const body = {
-    tabId: "FormAspirasi", // <== ini penting banget
-    values: [[tanggal, nama, pesan]]
+    values: [[tanggal, nama, pesan]] // tabId tidak di body
   };
 
   console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
@@ -41,6 +39,7 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
       notif.textContent = "❌ Gagal mengirim data: " + (result.message || result.error || "Periksa konsol.");
       notif.className = "notif error";
     }
+
   } catch (err) {
     console.error("Error:", err);
     notif.textContent = "❌ Tidak dapat terhubung ke server.";
@@ -53,7 +52,7 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(endpoint + "?tabId=FormAspirasi");
+    const res = await fetch(endpoint);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
 
@@ -69,6 +68,7 @@ async function muatData() {
     } else {
       tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
+
   } catch (err) {
     console.error("Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
