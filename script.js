@@ -3,16 +3,16 @@ const form = document.getElementById("aspirasiForm");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nama = document.getElementById("nama").value;
-  const pesan = document.getElementById("pesan").value;
-  const tanggal = new Date().toLocaleString("id-ID");
+  const nama = document.getElementById("nama").value.trim();
+const pesan = document.getElementById("pesan").value.trim();
+const tanggal = new Date().toLocaleString("id-ID");
 
-  // Format HARUS array 2 dimensi (2D array)
-  const dataKirim = {
-    values: [[tanggal, nama, pesan]]
-  };
+const dataKirim = {
+  values: [[tanggal, nama, pesan]]
+};
 
-  console.log("📄 Data sheet:", dataKirim);
+console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(dataKirim, null, 2));
+
 
   try {
     const response = await fetch(
