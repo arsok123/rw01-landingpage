@@ -14,8 +14,10 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 
   const tanggal = new Date().toLocaleString("id-ID");
+
+  // ✅ Format body sesuai dokumentasi NocodeAPI
   const body = {
-    tabId: "FormAspirasi", // 👈 PENTING! sekarang di body, bukan di URL
+    tabId: "FormAspirasi", // wajib ada di body
     values: [[tanggal, nama, pesan]]
   };
 
@@ -24,7 +26,9 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   try {
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(body)
     });
 
