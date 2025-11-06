@@ -32,6 +32,16 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
 
   // 🧾 Ambil hasil respons
   let hasil;
+ try {
+  // 🛰️ Kirim data ke NoCodeAPI
+  const res = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  // 🧾 Ambil hasil respons
+  let hasil;
   try {
     hasil = await res.json();
   } catch (jsonErr) {
@@ -88,40 +98,5 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
 }
 
-
-
-async function muatData() {
-  const tabelBody = document.getElementById("tabelBody");
-  tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
-
-  try {
-    const res = await fetch(ENDPOINT);
-    const json = await res.json();
-    console.log("📄 Data sheet:", json);
-
-    if (json.data && json.data.length > 1) {
-      const rows = json.data.slice(1);
-      tabelBody.innerHTML = rows.map(r => `
-        <tr>
-          <td>${r[0] || "-"}</td>
-          <td>${r[1] || "-"}</td>
-          <td>${r[2] || "-"}</td>
-        </tr>
-      `).join("");
-    } else {
-      tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
-    }
-
-  } catch (err) {
-    console.error("❌ Gagal memuat:", err);
-    tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
-  }
-}
-
-function tampilkanNotif(pesan, tipe) {
-  const notif = document.getElementById("notif");
-  notif.textContent = pesan;
-  notif.className = `notif ${tipe}`;
-}
 
 muatData();
