@@ -23,27 +23,71 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
 
   try {
-    const res = await fetch(ENDPOINT, {
+  // 🛰️ Kirim data ke NoCodeAPI
+  const res = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  // 🧾 Ambil hasil respons
+  let hasil;
+  try {
+    hasil = await res.json();
+  } catch (jsonErr) {
+    console.warn("⚠️ Gagal parse JSON dari response:", jsonErr);
+    hasil = { error: "Response bukan JSON valid" };
+  }
+
+  console.log("📦 Hasil response:", hasil);
+
+  // ✅ Berhasil (pesan sukses)
+  if (res.ok && hasil.message === "Success") {
+    tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
+    document.getElementById("aspirasiForm").reset();
+    muatData();
+    return;
+  }
+
+  // ⚠️ Error umum dari server
+  if (hasil.error && hasil.error.includes("2D array")) {
+    tampilkanNotif("⚙️ Deteksi format salah: coba ulang dengan versi URL (auto fix).", "error");
+
+    // 🚑 Fallback otomatis → tambahkan ?tabId di URL dan ulangi POST
+    const fallbackUrl = `${ENDPOINT}?tabId=${SHEET_NAME}`;
+    console.log("🔁 Mengulang POST ke:", fallbackUrl);
+
+    const res2 = await fetch(fallbackUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ values: [[tanggal, nama, pesan]] })
     });
 
-    const hasil = await res.json();
-    console.log("📦 Hasil response:", hasil);
+    const hasil2 = await res2.json();
+    console.log("📦 Respons fallback:", hasil2);
 
-    if (res.ok && hasil.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
+    if (res2.ok && hasil2.message === "Success") {
+      tampilkanNotif("✅ Aspirasi berhasil dikirim (mode fallback)!", "success");
       document.getElementById("aspirasiForm").reset();
       muatData();
     } else {
-      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
+      tampilkanNotif("❌ Gagal kirim (fallback): " + (hasil2.error || hasil2.message), "error");
     }
-  } catch (err) {
-    console.error("❌ Kesalahan koneksi:", err);
-    tampilkanNotif("❌ Tidak dapat terhubung ke server.", "error");
+    return;
   }
-});
+
+  // ❌ Kalau bukan error 2D array, tampilkan hasil server
+  tampilkanNotif(
+    "❌ Gagal mengirim: " + (hasil.error || hasil.message || `Kode ${res.status}`),
+    "error"
+  );
+
+} catch (err) {
+  // 💥 Network atau error fetch
+  console.error("❌ Kesalahan koneksi:", err);
+  tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
+}
+
 
 async function muatData() {
   const tabelBody = document.getElementById("tabelBody");
