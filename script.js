@@ -1,5 +1,5 @@
 const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
- 
+
 
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
