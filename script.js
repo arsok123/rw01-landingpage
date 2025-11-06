@@ -1,5 +1,5 @@
 // ✅ Endpoint dengan tabId di URL (versi lama NoCodeAPI)
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/YIKReFjIqgQshfzR?tabId=FormAspirasi";
 
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
