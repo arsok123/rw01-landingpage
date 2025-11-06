@@ -1,5 +1,8 @@
-const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
+// Endpoint dasar
+const baseEndpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
+const sheetName = "FormAspirasi";
 
+// Event submit form
 document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -21,7 +24,8 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   };
 
   try {
-    const response = await fetch(endpoint, {
+    // POST TANPA ?tabId
+    const response = await fetch(baseEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -47,12 +51,14 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 });
 
+// Fungsi untuk GET data dari sheet
 async function muatData() {
   const tabelBody = document.getElementById("tabelBody");
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(endpoint.replace("?tabId=FormAspirasi", "") + "?tabId=FormAspirasi");
+    // GET DENGAN ?tabId
+    const res = await fetch(`${baseEndpoint}?tabId=${sheetName}`);
     const json = await res.json();
     console.log("Data sheet:", json);
 
@@ -75,4 +81,5 @@ async function muatData() {
   }
 }
 
+// Jalankan saat halaman dimuat
 muatData();
