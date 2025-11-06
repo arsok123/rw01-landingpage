@@ -1,22 +1,73 @@
-const ID_SHEET = '1OpOtZYm3FROXfrtp2VqVYnCEavAniniGnhENndGpXhc';
-const NAMA_SHEET = 'FormAspirasi';  // Pastikan tab ini ADA di Google Sheet kamu
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9_s4gJXWv0y41OOkJt60yx4mL3um0kuIen1CuqbfFP7oLP2nOP1FodUm1tceUPHbv/exec"; // Ganti dengan URL milikmu
 
-function doPost(e) {
-  try {
-    const ss = SpreadsheetApp.openById(ID_SHEET);
-    const sheet = ss.getSheetByName(NAMA_SHEET);
-    if (!sheet) throw new Error("Sheet tidak ditemukan, pastikan nama tab sesuai!");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("aspirasiForm");
+  const notif = document.getElementById("notif");
+  const tabelBody = document.getElementById("tabelBody");
 
-    const data = JSON.parse(e.postData.contents);
-    sheet.appendRow([new Date(), data.nama, data.pesan]);
+  // Fungsi kirim data ke Google Sheet
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    notif.textContent = "Mengirim...";
+    notif.style.color = "#555";
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ result: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    const data = {
+      nama: document.getElementById("nama").value.trim(),
+      pesan: document.getElementById("pesan").value.trim(),
+    };
 
-  } catch (error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ result: 'error', message: error.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json();
+      if (json.result === "success") {
+        notif.textContent = "✅ " + json.message;
+        notif.style.color = "green";
+        form.reset();
+        muatData(); // refresh tabel otomatis
+      } else {
+        notif.textContent = "⚠️ " + json.message;
+        notif.style.color = "red";
+      }
+    } catch (err) {
+      notif.textContent = "❌ Gagal mengirim: " + err.message;
+      notif.style.color = "red";
+    }
+  });
+
+  // Fungsi ambil data dari Google Sheet (via JSON publik)
+  async function muatData() {
+    try {
+      const sheetId = "1OpOtZYm3FROXfrtp2VqVYnCEavAniniGnhENndGpXhc";
+      const sheetName = "FormAspirasi";
+      const url = `https://opensheet.elk.sh/${sheetId}/${sheetName}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      tabelBody.innerHTML = "";
+      data.reverse().forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.Timestamp || row[0]}</td>
+          <td>${row.nama || row[1]}</td>
+          <td>${row.pesan || row[2]}</td>
+        `;
+        tabelBody.appendChild(tr);
+      });
+
+      if (data.length === 0) {
+        tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada aspirasi</td></tr>";
+      }
+
+    } catch (err) {
+      tabelBody.innerHTML = `<tr><td colspan='3' align='center'>Gagal memuat data</td></tr>`;
+    }
   }
-}
+
+  muatData(); // panggil pertama kali saat halaman dibuka
+});
