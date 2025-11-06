@@ -1,53 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Form Aspirasi RW 01</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, textarea, button { width: 100%; margin: 8px 0; padding: 8px; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f7f8fa;
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%; max-width: 400px;
+    }
+    h2 { text-align: center; color: #2c7a7b; }
+    label { font-weight: bold; display: block; margin-top: 15px; }
+    input, textarea {
+      width: 100%; padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background: #2c7a7b;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #276a6d; }
+    .notif {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h2>Kirim Aspirasi Warga</h2>
-  <input type="text" id="nama" placeholder="Nama Anda" required />
-  <textarea id="pesan" placeholder="Tulis aspirasi Anda" required></textarea>
-  <button onclick="kirimAspirasi()">Kirim</button>
-  <p id="status"></p>
+  <form id="aspirasiForm">
+    <h2>Form Aspirasi Warga RW 01</h2>
+    <label for="nama">Nama:</label>
+    <input type="text" id="nama" name="nama" required>
+
+    <label for="pesan">Pesan / Aspirasi:</label>
+    <textarea id="pesan" name="pesan" rows="4" required></textarea>
+
+    <button type="submit">Kirim Aspirasi</button>
+    <div id="notif" class="notif"></div>
+  </form>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9_s4gJXWv0y41OOkJt60yx4mL3um0kuIen1CuqbfFP7oLP2nOP1FodUm1tceUPHbv/exec';
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfO-C3ZIh4HdzYoTxui4JYEeHQLYo6S3OuQBo2_OG6yx4NgnvkrpUp6S_UYA0fR3k/exec"; // GANTI dengan URL milikmu
 
-    async function kirimAspirasi() {
-      const nama = document.getElementById('nama').value;
-      const pesan = document.getElementById('pesan').value;
-      const status = document.getElementById('status');
+    document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const notif = document.getElementById("notif");
+      notif.textContent = "Mengirim...";
+      notif.style.color = "#555";
 
-      if (!nama || !pesan) {
-        status.textContent = '❌ Harap isi semua kolom.';
-        return;
-      }
-
-      status.textContent = '⏳ Mengirim...';
+      const data = {
+        nama: document.getElementById("nama").value.trim(),
+        pesan: document.getElementById("pesan").value.trim()
+      };
 
       try {
         const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nama, pesan })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
         });
-        const result = await res.json();
-        if (result.result === 'success') {
-          status.textContent = '✅ Aspirasi berhasil dikirim.';
-          document.getElementById('nama').value = '';
-          document.getElementById('pesan').value = '';
+
+        const json = await res.json();
+        if (json.result === "success") {
+          notif.textContent = "✅ " + json.message;
+          notif.style.color = "green";
+          e.target.reset();
         } else {
-          status.textContent = '❌ Gagal: ' + result.message;
+          notif.textContent = "⚠️ " + json.message;
+          notif.style.color = "red";
         }
       } catch (err) {
-        status.textContent = '❌ Terjadi kesalahan koneksi.';
+        notif.textContent = "❌ Gagal mengirim: " + err.message;
+        notif.style.color = "red";
       }
-    }
+    });
   </script>
 </body>
 </html>
