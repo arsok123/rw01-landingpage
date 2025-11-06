@@ -15,9 +15,8 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
 
   const tanggal = new Date().toLocaleString("id-ID");
 
-  // ✅ Format body sesuai dokumentasi NocodeAPI
   const body = {
-    tabId: "FormAspirasi", // wajib ada di body
+    tabId: "FormAspirasi", // <== ini penting banget
     values: [[tanggal, nama, pesan]]
   };
 
@@ -26,9 +25,7 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   try {
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
@@ -44,7 +41,6 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
       notif.textContent = "❌ Gagal mengirim data: " + (result.message || result.error || "Periksa konsol.");
       notif.className = "notif error";
     }
-
   } catch (err) {
     console.error("Error:", err);
     notif.textContent = "❌ Tidak dapat terhubung ke server.";
@@ -73,7 +69,6 @@ async function muatData() {
     } else {
       tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
-
   } catch (err) {
     console.error("Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
