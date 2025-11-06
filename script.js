@@ -98,5 +98,4 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
 }
 
-
-muatData();
+ 
