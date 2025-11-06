@@ -1,94 +1,77 @@
 const endpoint = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN?tabId=FormAspirasi";
+ 
 
-// Saat form dikirim
-document.getElementById("aspirasiForm").addEventListener("submit", async function (e) {
+document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-
+  
   const nama = document.getElementById("nama").value.trim();
   const pesan = document.getElementById("pesan").value.trim();
   const notif = document.getElementById("notif");
 
   if (!nama || !pesan) {
-    notif.innerHTML = "⚠️ Mohon isi semua kolom.";
-    notif.style.color = "red";
+    notif.textContent = "⚠️ Harap isi semua kolom.";
+    notif.className = "notif error";
     return;
   }
 
-  // Format tanggal dan data
-  const tanggal = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
-
-  // Data dikirim sesuai format NocodeAPI
+  const tanggal = new Date().toLocaleString("id-ID");
   const data = {
-    values: [
-      [tanggal, nama, pesan]
-    ]
+    tabId: "FormAspirasi",
+    values: [[tanggal, nama, pesan]]
   };
-
-  notif.innerHTML = "⏳ Mengirim...";
-  notif.style.color = "black";
 
   try {
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
-    if (!response.ok) {
-      throw new Error(`Gagal kirim data (${response.status})`);
+    const result = await response.json();
+    console.log(result);
+
+    if (result.message === "Success") {
+      notif.textContent = "✅ Aspirasi berhasil dikirim!";
+      notif.className = "notif success";
+      document.getElementById("aspirasiForm").reset();
+      muatData(); // refresh daftar setelah kirim
+    } else {
+      notif.textContent = "❌ Terjadi kesalahan saat mengirim data.";
+      notif.className = "notif error";
     }
 
-    notif.innerHTML = "✅ Aspirasi berhasil dikirim!";
-    notif.style.color = "green";
-    document.getElementById("aspirasiForm").reset();
-
-    // Muat ulang tabel agar langsung muncul
-    muatData();
   } catch (error) {
     console.error(error);
-    notif.innerHTML = "❌ Terjadi kesalahan saat mengirim data.";
-    notif.style.color = "red";
+    notif.textContent = "❌ Tidak dapat terhubung ke server.";
+    notif.className = "notif error";
   }
 });
 
-
-// === Fungsi untuk menampilkan data dari Google Sheets ===
 async function muatData() {
   const tabelBody = document.getElementById("tabelBody");
-  tabelBody.innerHTML = `<tr><td colspan="3" align="center">⏳ Memuat data...</td></tr>`;
+  tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(endpoint);
+    const res = await fetch(`${endpoint}?tabId=FormAspirasi`);
     const json = await res.json();
 
-    // Pastikan format data sesuai
-    const rows = json.data;
-    if (!rows || rows.length <= 1) {
-      tabelBody.innerHTML = `<tr><td colspan="3" align="center">Belum ada aspirasi.</td></tr>`;
-      return;
+    if (json.data && json.data.length > 0) {
+      const rows = json.data.slice(1); // lewati header jika ada
+      tabelBody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r[0] || "-"}</td>
+          <td>${r[1] || "-"}</td>
+          <td>${r[2] || "-"}</td>
+        </tr>
+      `).join("");
+    } else {
+      tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
 
-    // Hapus header baris pertama (judul kolom)
-    const dataRows = rows.slice(1);
-
-    tabelBody.innerHTML = dataRows
-      .reverse()
-      .map(
-        (r) => `
-          <tr>
-            <td>${r[0]}</td>
-            <td>${r[1]}</td>
-            <td>${r[2]}</td>
-          </tr>`
-      )
-      .join("");
   } catch (err) {
     console.error(err);
-    tabelBody.innerHTML = `<tr><td colspan="3" align="center">❌ Gagal memuat data.</td></tr>`;
+    tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
 }
 
-// Muat data saat halaman dibuka
 muatData();
