@@ -40,8 +40,9 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   }
 
   console.log("📦 Hasil response:", hasil);
+  console.log("📤 Request body terkirim:", JSON.stringify(body));
 
-  // ✅ Berhasil (pesan sukses)
+  // ✅ Jika sukses
   if (res.ok && hasil.message === "Success") {
     tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
     document.getElementById("aspirasiForm").reset();
@@ -49,11 +50,10 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
     return;
   }
 
-  // ⚠️ Error umum dari server
+  // ⚠️ Jika error "Body param should be a 2D array"
   if (hasil.error && hasil.error.includes("2D array")) {
-    tampilkanNotif("⚙️ Deteksi format salah: coba ulang dengan versi URL (auto fix).", "error");
+    tampilkanNotif("⚙️ Format data salah — mencoba ulang otomatis...", "error");
 
-    // 🚑 Fallback otomatis → tambahkan ?tabId di URL dan ulangi POST
     const fallbackUrl = `${ENDPOINT}?tabId=${SHEET_NAME}`;
     console.log("🔁 Mengulang POST ke:", fallbackUrl);
 
@@ -63,31 +63,31 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
       body: JSON.stringify({ values: [[tanggal, nama, pesan]] })
     });
 
-        const hasil = await res.json();
-    console.log("📦 Hasil response:", hasil); // This line is already good for verification.
-    console.log("Request body sent:", JSON.stringify(body)); // Add this to compare with expected API format.
+    const hasil2 = await res2.json();
+    console.log("📦 Respons fallback:", hasil2);
 
-    if (res.ok && hasil.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
+    if (res2.ok && hasil2.message === "Success") {
+      tampilkanNotif("✅ Aspirasi berhasil dikirim (mode fallback)!", "success");
       document.getElementById("aspirasiForm").reset();
       muatData();
     } else {
-      // The error message from the server should be in hasil.error or hasil.message
-      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message || "Unknown error"), "error");
+      tampilkanNotif("❌ Gagal kirim (fallback): " + (hasil2.error || hasil2.message), "error");
     }
+    return;
+  }
 
-
-  // ❌ Kalau bukan error 2D array, tampilkan hasil server
+  // ❌ Jika gagal tapi bukan error 2D array
   tampilkanNotif(
     "❌ Gagal mengirim: " + (hasil.error || hasil.message || `Kode ${res.status}`),
     "error"
   );
 
 } catch (err) {
-  // 💥 Network atau error fetch
+  // 💥 Jika error koneksi / fatal
   console.error("❌ Kesalahan koneksi:", err);
   tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
 }
+
 
 
 async function muatData() {
