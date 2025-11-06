@@ -15,7 +15,7 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
 
   const tanggal = new Date().toLocaleString("id-ID");
   const body = {
-    values: [[tanggal, nama, pesan]] // tabId tidak di body
+    values: [[tanggal, nama, pesan]]
   };
 
   console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
