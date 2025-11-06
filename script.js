@@ -63,18 +63,19 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
       body: JSON.stringify({ values: [[tanggal, nama, pesan]] })
     });
 
-    const hasil2 = await res2.json();
-    console.log("📦 Respons fallback:", hasil2);
+        const hasil = await res.json();
+    console.log("📦 Hasil response:", hasil); // This line is already good for verification.
+    console.log("Request body sent:", JSON.stringify(body)); // Add this to compare with expected API format.
 
-    if (res2.ok && hasil2.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim (mode fallback)!", "success");
+    if (res.ok && hasil.message === "Success") {
+      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
       document.getElementById("aspirasiForm").reset();
       muatData();
     } else {
-      tampilkanNotif("❌ Gagal kirim (fallback): " + (hasil2.error || hasil2.message), "error");
+      // The error message from the server should be in hasil.error or hasil.message
+      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message || "Unknown error"), "error");
     }
-    return;
-  }
+
 
   // ❌ Kalau bukan error 2D array, tampilkan hasil server
   tampilkanNotif(
