@@ -1,4 +1,4 @@
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI?tabId=FormAspirasi";
 const SHEET_NAME = "FormAspirasi";
 
 const form = document.getElementById("aspirasiForm");
