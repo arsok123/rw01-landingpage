@@ -73,6 +73,11 @@ button:hover {
   margin-top: 40px;
 }
 
+/* Menyembunyikan daftar aspirasi warga sejak awal */
+#rekapContainer {
+  display: none;  /* Tabel ini akan disembunyikan saat halaman pertama kali dimuat */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -86,16 +91,4 @@ th, td {
 th {
   background: #2a6f97;
   color: white;
-}
-
-/* Styling for preview */
-.pratinjau-container {
-  margin-top: 20px;
-}
-
-.pratinjau-container img,
-.pratinjau-container video {
-  width: 100%;
-  margin-top: 15px;
-  max-width: 500px; /* Ensuring preview fits nicely */
 }
