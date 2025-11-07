@@ -1,43 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Form Aspirasi Warga RW 01</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Aspirasi</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+  h2, h3 { text-align: center; }
+  form { margin-bottom: 20px; }
+  input, textarea, button { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
+  #preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .preview-item { position: relative; }
+  .preview-item img, .preview-item video { width: 100%; height: auto; display: block; border: 1px solid #ccc; border-radius: 5px; }
+  .remove-btn { position: absolute; top: 2px; right: 2px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background: #eee; }
+  video { max-width: 100%; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <form id="aspirasiForm">
-      <h2>🗳️ Form Aspirasi Warga RW 01</h2>
 
-      <label for="nama">Nama:</label>
-      <input type="text" id="nama" name="nama" placeholder="Masukkan nama Anda" required>
+<h2>Form Aspirasi</h2>
 
-      <label for="pesan">Pesan / Aspirasi:</label>
-      <textarea id="pesan" name="pesan" rows="4" placeholder="Tulis pesan atau aspirasi Anda di sini" required></textarea>
+<form id="aspirasiForm">
+  <input type="text" name="nama" placeholder="Nama" required>
+  <textarea name="aspirasi" placeholder="Tulis aspirasi Anda..." required></textarea>
 
-      <button type="submit">Kirim Aspirasi</button>
-      <div id="notif" class="notif"></div>
-    </form>
+  <label>Foto (bisa lebih dari 1):</label>
+  <input type="file" name="foto" accept="image/*" id="fotoInput" multiple>
+  
+  <label>Video (bisa lebih dari 1):</label>
+  <input type="file" name="video" accept="video/*" id="videoInput" multiple>
 
-    <div id="rekapContainer" class="rekap">
-      <h3>📋 Daftar Aspirasi Warga</h3>
-      <table id="tabelAspirasi">
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Nama</th>
-            <th>Pesan</th>
-          </tr>
-        </thead>
-        <tbody id="tabelBody">
-          <tr><td colspan="3" align="center">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <div id="preview"></div>
 
-  <script src="script.js"></script>
+  <button type="submit">Kirim</button>
+</form>
+
+<div id="notif" style="text-align:center; margin-top:10px;"></div>
+
+<h3>Data Aspirasi</h3>
+<div style="overflow-x:auto;">
+  <table id="tabelAspirasi">
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Aspirasi</th>
+        <th>Foto</th>
+        <th>Video</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
+const SHEET_NAME = "FormAspirasi";
+
+const form = document.getElementById("aspirasiForm");
+const notif = document.getElementById("notif");
+const preview = document.getElementById("preview");
+const tabelBody = document.querySelector("#tabelAspirasi tbody");
+
+let fotoFilesArray = [];
+let videoFilesArray = [];
+
+// Fungsi update preview
+function updatePreview() {
+  preview.innerHTML = "";
+
+  fotoFilesArray.forEach((file, index) => {
+    const div = document.createElement("div");
+    div.className = "preview-item";
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    const btn = document.createElement("button");
+    btn.innerText = "×";
+    btn.className = "remove-btn";
+    btn.onclick = () => { fotoFilesArray.splice(index, 1); updatePreview(); };
+    div.appendChild(img);
+    div.appendChild(btn);
+    preview.appendChild(div);
+  });
+
+  videoFilesArray.forEach((file, index) => {
+    const div = document.createElement("div");
+    div.className = "preview-item";
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(file);
+    video.controls = true;
+    const btn = document.createElement("button");
+    btn.innerText = "×";
+    btn.className = "remove-btn";
+    btn.onclick = () => { videoFilesArray.splice(index, 1); updatePreview(); };
+    div.appendChild(video);
+    div.appendChild(btn);
+    preview.appendChild(div);
+  });
+}
+
+// Tambah file baru ke array
+document.getElementById("fotoInput").addEventListener("change", function(){
+  fotoFilesArray = fotoFilesArray.concat(Array.from(this.files));
+  updatePreview();
+});
+document.getElementById("videoInput").addEventListener("change", function(){
+  videoFilesArray = videoFilesArray.concat(Array.from(this.files));
+  updatePreview();
+});
+
+// Upload file ke Google Drive via NoCodeAPI
+async function uploadFiles(files) {
+  const urls = [];
+  for (let file of files) {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("https://v1.nocodeapi.com/arsok70/google_drive/uploadFile", {
+      method: "POST",
+      body: fd
+    });
+    const json = await res.json();
+    urls.push(json.webContentLink);
+  }
+  return urls;
+}
+
+// Submit form
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  notif.innerText = "Mengirim...";
+
+  const formData = new FormData(form);
+
+  const fotoURLs = fotoFilesArray.length > 0 ? await uploadFiles(fotoFilesArray) : [];
+  const videoURLs = videoFilesArray.length > 0 ? await uploadFiles(videoFilesArray) : [];
+
+  const dataSheet = {
+    Nama: formData.get("nama"),
+    Aspirasi: formData.get("aspirasi"),
+    Foto: fotoURLs.join(", "),
+    Video: videoURLs.join(", ")
+  };
+
+  await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify([dataSheet])
+  });
+
+  notif.innerText = "Aspirasi berhasil dikirim!";
+  form.reset();
+  fotoFilesArray = [];
+  videoFilesArray = [];
+  updatePreview();
+
+  // Tambahkan ke tabel
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${dataSheet.Nama}</td>
+    <td>${dataSheet.Aspirasi}</td>
+    <td>${fotoURLs.map(url => `<img src="${url}" width="50">`).join("")}</td>
+    <td>${videoURLs.map(url => `<video src="${url}" width="100" controls></video>`).join("")}</td>
+  `;
+  tabelBody.appendChild(row);
+});
+</script>
+
 </body>
 </html>
