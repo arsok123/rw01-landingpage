@@ -69,13 +69,14 @@ form.addEventListener("submit", async (e) => {
     const hasil = await res.json();
     console.log("📦 Hasil response:", hasil);
 
-    if (res.ok && hasil.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
-      form.reset();
-      muatData();
-    } else {
-      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
-    }
+    if (res.ok && (hasil.message === "Success" || hasil.message === "Successfully Inserted")) {
+  tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
+  form.reset();
+  muatData();
+} else {
+  tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
+}
+
 
   } catch (err) {
     console.error("❌ Kesalahan koneksi:", err);
