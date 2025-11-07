@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 const fotoPreview = document.createElement("img");
                 fotoPreview.src = event.target.result;
                 fotoPreview.style.maxWidth = '100%';
-                fotoPreview.style.marginTop = '15px';
                 pratinjauContainer.innerHTML = '';  // Clear previous previews
                 pratinjauContainer.appendChild(fotoPreview);  // Menampilkan pratinjau gambar
             };
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function() {
             videoPreview.setAttribute("controls", "true");
             videoPreview.src = url;
             videoPreview.style.maxWidth = '100%';
-            videoPreview.style.marginTop = '15px';
             pratinjauContainer.innerHTML = '';  // Clear previous previews
             pratinjauContainer.appendChild(videoPreview);  // Menampilkan pratinjau video
         }
@@ -45,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const formData = new FormData(form);  // Mengambil semua data dari form termasuk file
 
-        // Kirim data menggunakan fetch
+        // Kirim data menggunakan fetch (pastikan URL endpoint sudah benar)
         fetch("YOUR_SERVER_ENDPOINT", {
             method: 'POST',
             body: formData
@@ -54,21 +52,23 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             console.log("Data berhasil dikirim:", data);
             alert("Aspirasi berhasil dikirim!");
+
+            // Menambahkan data ke tabel
+            const tabelBody = document.getElementById("tabelBody");
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${tanggal}</td>
+                <td>${nama}</td>
+                <td>${pesan}</td>
+                <td><img src="${data.fotoUrl}" alt="Foto" width="100"></td>
+                <td><video controls width="100"><source src="${data.videoUrl}" type="video/mp4"></video></td>
+            `;
+            tabelBody.appendChild(newRow);
         })
         .catch(error => {
             console.error("Error:", error);
             alert("Gagal mengirim aspirasi.");
         });
-
-        // Tampilkan daftar aspirasi setelah berhasil kirim
-        const tabelBody = document.getElementById("tabelBody");
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-            <td>${tanggal}</td>
-            <td>${nama}</td>
-            <td>${pesan}</td>
-        `;
-        tabelBody.appendChild(newRow);
 
         // Reset form
         form.reset();
