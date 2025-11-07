@@ -1,38 +1,4 @@
-// ✅ Endpoint dengan tabId di URL (versi lama NoCodeAPI)
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/YIKReFjIqgQshfzR?tabId=FormAspirasi";
-
-document.getElementById("aspirasiForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const nama = document.getElementById("nama").value.trim();
-  const pesan = document.getElementById("pesan").value.trim();
-  const notif = document.getElementById("notif");
-
-  if (!nama || !pesan) {
-    tampilkanNotif("⚠️ Harap isi semua kolom.", "error");
-    return;
-  }
-
-  const tanggal = new Date().toLocaleString("id-ID");
-
-  // ✅ Format body sesuai Google Sheets API
-  const body = {
-    values: [[tanggal, nama, pesan]]
-  };
-
-  console.log("📤 Akan dikirim ke NocodeAPI:", JSON.stringify(body, null, 2));
-
-  try {
-  // 🛰️ Kirim data ke NoCodeAPI
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-
-  // 🧾 Ambil hasil respons
-  let hasil;
- try {
+try {
   // 🛰️ Kirim data ke NoCodeAPI
   const res = await fetch(ENDPOINT, {
     method: "POST",
@@ -97,5 +63,3 @@ document.getElementById("aspirasiForm").addEventListener("submit", async (e) => 
   console.error("❌ Kesalahan koneksi:", err);
   tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
 }
-
- muatData();
