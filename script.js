@@ -1,5 +1,4 @@
 
-
 // ✅ Ganti dengan endpoint NoCodeAPI kamu
 const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
 const SHEET_NAME = "FormAspirasi";
@@ -19,6 +18,7 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
+    // ❗ gunakan hanya satu ?tabId
     const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
@@ -60,6 +60,7 @@ form.addEventListener("submit", async (e) => {
   console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
   try {
+    // ❗ hanya satu ?tabId
     const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,12 +70,7 @@ form.addEventListener("submit", async (e) => {
     const hasil = await res.json();
     console.log("📦 Hasil response:", hasil);
 
-    // ✅ tangkap semua jenis pesan sukses
-    if (res.ok && (
-      hasil.message === "Success" ||
-      hasil.message === "Successfully Inserted" ||
-      hasil.message?.includes("Success")
-    )) {
+    if (res.ok && hasil.message === "Success") {
       tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
       form.reset();
       muatData();
@@ -88,5 +84,5 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// 🔹 Jalankan pertama kali
+// Jalankan pertama kali
 muatData();
