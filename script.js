@@ -1,90 +1,62 @@
-// ✅ Ganti dengan endpoint NoCodeAPI kamu
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
-const SHEET_NAME = "FormAspirasi";
+document.addEventListener("DOMContentLoaded", function() {
+    const tabelBody = document.getElementById("tabelBody");
+    const form = document.getElementById("aspirasiForm");
+    const notif = document.getElementById("notif");
 
-const form = document.getElementById("aspirasiForm");
-const notif = document.getElementById("notif");
-const tabelBody = document.getElementById("tabelBody");
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
 
-// 🔹 Fungsi menampilkan notifikasi
-function tampilkanNotif(pesan, tipe) {
-  notif.textContent = pesan;
-  notif.className = `notif ${tipe}`;
-}
+        const nama = document.getElementById("nama").value;
+        const pesan = document.getElementById("pesan").value;
+        const tanggal = new Date().toLocaleString();
 
-// 🔹 Ambil data dari Sheet
-async function muatData() {
-  tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
+        // Kirim data ke Google Sheets (atau simpan dalam array untuk testing)
+        // Di sini bisa menggunakan fetch API untuk mengirim data ke backend atau API Google Sheets
 
-  try {
-    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
-    const json = await res.json();
-    console.log("📄 Data sheet:", json);
+        // Simulasi menambahkan data ke tabel
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+            <td>${tanggal}</td>
+            <td>${nama}</td>
+            <td>${pesan}</td>
+        `;
+        tabelBody.appendChild(newRow);
 
-    if (json.data && json.data.length > 1) {
-      const rows = json.data.slice(1); // lewati header
-      tabelBody.innerHTML = rows.map(r => `
-        <tr>
-          <td>${r[0] || "-"}</td>
-          <td>${r[1] || "-"}</td>
-          <td>${r[2] || "-"}</td>
-        </tr>
-      `).join("");
-    } else {
-      tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
-    }
+        // Reset form
+        form.reset();
 
-  } catch (err) {
-    console.error("❌ Gagal memuat:", err);
-    tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
-  }
-}
-
-// 🔹 Saat form dikirim
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const nama = document.getElementById("nama").value.trim();
-  const pesan = document.getElementById("pesan").value.trim();
-  const tanggal = new Date().toLocaleString("id-ID");
-
-  if (!nama || !pesan) {
-    tampilkanNotif("⚠️ Harap isi semua kolom.", "error");
-    return;
-  }
-
-  // ✅ Format body langsung array 2D (tanpa key "values")
-  const body = [[tanggal, nama, pesan]];
-  console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
-
-  try {
-    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+        // Tampilkan notifikasi sukses
+        notif.classList.add("success");
+        notif.textContent = "Aspirasi berhasil dikirim!";
+        setTimeout(() => notif.textContent = "", 3000);
     });
 
-    const hasil = await res.json();
-    console.log("📦 Hasil response:", hasil);
-
-    // ✅ tangkap semua jenis pesan sukses
-    if (res.ok && (
-      hasil.message === "Success" ||
-      hasil.message === "Successfully Inserted" ||
-      hasil.message?.includes("Success")
-    )) {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
-      form.reset();
-      muatData();
-    } else {
-      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
+    // Fungsi untuk memuat data dari Google Sheets
+    function loadAspirasi() {
+        // Menggunakan fetch untuk mengambil data dari Google Sheets API
+        fetch("URL_API_GOOGLE_SHEETS") // Ganti dengan URL API Google Sheets Anda
+            .then(response => response.json())
+            .then(data => {
+                // Clear tabel sebelum menambah data baru
+                tabelBody.innerHTML = "";
+                
+                // Tambahkan data ke tabel
+                data.forEach(item => {
+                    const newRow = document.createElement("tr");
+                    newRow.innerHTML = `
+                        <td>${item.tanggal}</td>
+                        <td>${item.nama}</td>
+                        <td>${item.pesan}</td>
+                    `;
+                    tabelBody.appendChild(newRow);
+                });
+            })
+            .catch(error => {
+                console.error("Error loading data:", error);
+                tabelBody.innerHTML = "<tr><td colspan='3'>Gagal memuat data.</td></tr>";
+            });
     }
 
-  } catch (err) {
-    console.error("❌ Kesalahan koneksi:", err);
-    tampilkanNotif("❌ Tidak dapat terhubung ke server.", "error");
-  }
+    // Panggil fungsi untuk memuat data saat halaman dimuat
+    loadAspirasi();
 });
-
-// 🔹 Jalankan pertama kali
-muatData();
