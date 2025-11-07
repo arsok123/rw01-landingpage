@@ -1,4 +1,4 @@
-// 🔗 Ganti dengan endpoint NoCodeAPI kamu
+// ✅ Ganti dengan endpoint NoCodeAPI kamu
 const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
 const SHEET_NAME = "FormAspirasi";
 
@@ -6,23 +6,24 @@ const form = document.getElementById("aspirasiForm");
 const notif = document.getElementById("notif");
 const tabelBody = document.getElementById("tabelBody");
 
-// 🔹 Fungsi tampilkan notifikasi
+// 🔹 Fungsi menampilkan notifikasi
 function tampilkanNotif(pesan, tipe) {
   notif.textContent = pesan;
   notif.className = `notif ${tipe}`;
 }
 
-// 🔹 Fungsi untuk memuat data dari Sheet
+// 🔹 Ambil data dari Sheet
 async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
+    // ❗ gunakan hanya satu ?tabId
     const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
 
     if (json.data && json.data.length > 1) {
-      const rows = json.data.slice(1);
+      const rows = json.data.slice(1); // lewati header
       tabelBody.innerHTML = rows.map(r => `
         <tr>
           <td>${r[0] || "-"}</td>
@@ -33,6 +34,7 @@ async function muatData() {
     } else {
       tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
+
   } catch (err) {
     console.error("❌ Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
@@ -52,11 +54,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // Format body sesuai dokumentasi NoCodeAPI
+  // ✅ Format body langsung array 2D (tanpa key "values")
   const body = [[tanggal, nama, pesan]];
   console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
   try {
+    // ❗ hanya satu ?tabId
     const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -73,10 +76,12 @@ form.addEventListener("submit", async (e) => {
     } else {
       tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
     }
+
   } catch (err) {
     console.error("❌ Kesalahan koneksi:", err);
     tampilkanNotif("❌ Tidak dapat terhubung ke server.", "error");
   }
 });
 
+// Jalankan pertama kali
 muatData();
