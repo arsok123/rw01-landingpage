@@ -2,10 +2,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("aspirasiForm");
     const fotoInput = document.getElementById("foto");
     const videoInput = document.getElementById("video");
-
     const pratinjauContainer = document.getElementById("pratinjauContainer");
 
-    // Pratinjau foto
+    // Pratinjau Foto
     fotoInput.addEventListener("change", function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Pratinjau video
+    // Pratinjau Video
     videoInput.addEventListener("change", function(e) {
         const file = e.target.files[0];
         if (file) {
