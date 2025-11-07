@@ -3,42 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form Aspirasi</title>
+<title>Form Aspirasi Cepat</title>
 <style>
-  body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-  h2, h3 { text-align: center; }
-  form { margin-bottom: 20px; }
-  input, textarea, button { width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; }
-  #preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 10px; }
-  .preview-item { position: relative; }
-  .preview-item img, .preview-item video { width: 100%; height: auto; display: block; border: 1px solid #ccc; border-radius: 5px; }
-  .remove-btn { position: absolute; top: 2px; right: 2px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; }
-  table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
-  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-  th { background: #eee; }
-  video { max-width: 100%; }
+  body { font-family:sans-serif; padding:20px; max-width:700px; margin:auto;}
+  h2,h3{text-align:center;}
+  form{margin-bottom:20px;}
+  input,textarea,button{width:100%;margin:10px 0;padding:10px;box-sizing:border-box;}
+  #preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;margin-bottom:10px;}
+  .preview-item{position:relative;}
+  .preview-item img,.preview-item video{width:100%;border:1px solid #ccc;border-radius:5px;}
+  .remove-btn{position:absolute;top:2px;right:2px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:14px;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;overflow-x:auto;display:block;}
+  th,td{border:1px solid #ccc;padding:8px;text-align:center;}
+  th{background:#eee;}
+  video{max-width:100%;}
+  #notif{margin-top:10px;text-align:center;}
 </style>
 </head>
 <body>
 
-<h2>Form Aspirasi</h2>
+<h2>Form Aspirasi Cepat</h2>
 
 <form id="aspirasiForm">
-  <input type="text" name="nama" placeholder="Nama" required>
-  <textarea name="aspirasi" placeholder="Tulis aspirasi Anda..." required></textarea>
-
-  <label>Foto (bisa lebih dari 1):</label>
-  <input type="file" name="foto" accept="image/*" id="fotoInput" multiple>
+  <input type="text" id="nama" name="nama" placeholder="Nama" required>
+  <textarea id="pesan" name="pesan" placeholder="Tulis aspirasi Anda..." required></textarea>
   
-  <label>Video (bisa lebih dari 1):</label>
-  <input type="file" name="video" accept="video/*" id="videoInput" multiple>
+  <label>Foto (lebih dari 1):</label>
+  <input type="file" id="fotoInput" accept="image/*" multiple>
+  
+  <label>Video (lebih dari 1):</label>
+  <input type="file" id="videoInput" accept="video/*" multiple>
 
   <div id="preview"></div>
-
   <button type="submit">Kirim</button>
 </form>
 
-<div id="notif" style="text-align:center; margin-top:10px;"></div>
+<div id="notif"></div>
 
 <h3>Data Aspirasi</h3>
 <div style="overflow-x:auto;">
@@ -49,6 +49,7 @@
         <th>Aspirasi</th>
         <th>Foto</th>
         <th>Video</th>
+        <th>Waktu</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -67,105 +68,111 @@ const tabelBody = document.querySelector("#tabelAspirasi tbody");
 let fotoFilesArray = [];
 let videoFilesArray = [];
 
-// Fungsi update preview
+// 🔹 Update preview foto & video
 function updatePreview() {
   preview.innerHTML = "";
 
-  fotoFilesArray.forEach((file, index) => {
-    const div = document.createElement("div");
-    div.className = "preview-item";
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    const btn = document.createElement("button");
-    btn.innerText = "×";
-    btn.className = "remove-btn";
-    btn.onclick = () => { fotoFilesArray.splice(index, 1); updatePreview(); };
-    div.appendChild(img);
-    div.appendChild(btn);
-    preview.appendChild(div);
+  fotoFilesArray.forEach((file, idx) => {
+    const div = document.createElement("div"); div.className="preview-item";
+    const img = document.createElement("img"); img.src = URL.createObjectURL(file);
+    const btn = document.createElement("button"); btn.innerText="×"; btn.className="remove-btn";
+    btn.onclick = ()=>{ fotoFilesArray.splice(idx,1); updatePreview(); };
+    div.appendChild(img); div.appendChild(btn); preview.appendChild(div);
   });
 
-  videoFilesArray.forEach((file, index) => {
-    const div = document.createElement("div");
-    div.className = "preview-item";
-    const video = document.createElement("video");
-    video.src = URL.createObjectURL(file);
-    video.controls = true;
-    const btn = document.createElement("button");
-    btn.innerText = "×";
-    btn.className = "remove-btn";
-    btn.onclick = () => { videoFilesArray.splice(index, 1); updatePreview(); };
-    div.appendChild(video);
-    div.appendChild(btn);
-    preview.appendChild(div);
+  videoFilesArray.forEach((file, idx) => {
+    const div = document.createElement("div"); div.className="preview-item";
+    const video = document.createElement("video"); video.src = URL.createObjectURL(file); video.controls=true;
+    const btn = document.createElement("button"); btn.innerText="×"; btn.className="remove-btn";
+    btn.onclick = ()=>{ videoFilesArray.splice(idx,1); updatePreview(); };
+    div.appendChild(video); div.appendChild(btn); preview.appendChild(div);
   });
 }
 
-// Tambah file baru ke array
 document.getElementById("fotoInput").addEventListener("change", function(){
-  fotoFilesArray = fotoFilesArray.concat(Array.from(this.files));
-  updatePreview();
+  fotoFilesArray = fotoFilesArray.concat(Array.from(this.files)); updatePreview();
 });
 document.getElementById("videoInput").addEventListener("change", function(){
-  videoFilesArray = videoFilesArray.concat(Array.from(this.files));
-  updatePreview();
+  videoFilesArray = videoFilesArray.concat(Array.from(this.files)); updatePreview();
 });
 
-// Upload file ke Google Drive via NoCodeAPI
+// 🔹 Upload paralel
 async function uploadFiles(files) {
-  const urls = [];
-  for (let file of files) {
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("https://v1.nocodeapi.com/arsok70/google_drive/uploadFile", {
-      method: "POST",
-      body: fd
-    });
-    const json = await res.json();
-    urls.push(json.webContentLink);
-  }
+  if(files.length===0) return [];
+  const promises = files.map(file=>{
+    const fd = new FormData(); fd.append("file",file);
+    return fetch("https://v1.nocodeapi.com/arsok70/google_drive/uploadFile",{method:"POST",body:fd})
+      .then(res=>res.json()).then(j=>j.webContentLink);
+  });
+  const urls = await Promise.all(promises);
   return urls;
 }
 
-// Submit form
-form.addEventListener("submit", async (e) => {
+// 🔹 Submit form
+form.addEventListener("submit", async e=>{
   e.preventDefault();
-  notif.innerText = "Mengirim...";
+  const nama = document.getElementById("nama").value.trim();
+  const pesan = document.getElementById("pesan").value.trim();
+  const waktu = new Date().toLocaleString("id-ID");
 
-  const formData = new FormData(form);
+  if(!nama || !pesan){ notif.innerText="⚠️ Harap isi semua kolom."; return; }
 
-  const fotoURLs = fotoFilesArray.length > 0 ? await uploadFiles(fotoFilesArray) : [];
-  const videoURLs = videoFilesArray.length > 0 ? await uploadFiles(videoFilesArray) : [];
+  notif.innerText=`⏳ Mengunggah ${fotoFilesArray.length} foto dan ${videoFilesArray.length} video...`;
+
+  const fotoURLs = await uploadFiles(fotoFilesArray);
+  const videoURLs = await uploadFiles(videoFilesArray);
+
+  notif.innerText="⏳ Mengirim data ke Sheet...";
 
   const dataSheet = {
-    Nama: formData.get("nama"),
-    Aspirasi: formData.get("aspirasi"),
+    Nama:nama,
+    Aspirasi:pesan,
     Foto: fotoURLs.join(", "),
-    Video: videoURLs.join(", ")
+    Video: videoURLs.join(", "),
+    Timestamp:waktu
   };
 
-  await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify([dataSheet])
+  await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify([dataSheet])
   });
 
-  notif.innerText = "Aspirasi berhasil dikirim!";
-  form.reset();
-  fotoFilesArray = [];
-  videoFilesArray = [];
-  updatePreview();
+  notif.innerText="✅ Aspirasi berhasil dikirim!";
+  form.reset(); fotoFilesArray=[]; videoFilesArray=[]; updatePreview();
 
   // Tambahkan ke tabel
-  const row = document.createElement("tr");
-  row.innerHTML = `
+  const tr = document.createElement("tr");
+  tr.innerHTML=`
     <td>${dataSheet.Nama}</td>
     <td>${dataSheet.Aspirasi}</td>
-    <td>${fotoURLs.map(url => `<img src="${url}" width="50">`).join("")}</td>
-    <td>${videoURLs.map(url => `<video src="${url}" width="100" controls></video>`).join("")}</td>
+    <td>${fotoURLs.map(u=>`<img src="${u}" width="50">`).join("")}</td>
+    <td>${videoURLs.map(u=>`<video src="${u}" width="100" controls></video>`).join("")}</td>
+    <td>${dataSheet.Timestamp}</td>
   `;
-  tabelBody.appendChild(row);
+  tabelBody.appendChild(tr);
 });
+
+// 🔹 Load data terakhir (opsional)
+async function loadData(){
+  try{
+    const res = await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`);
+    const json = await res.json();
+    if(json.data && json.data.length>1){
+      const rows = json.data.slice(1);
+      tabelBody.innerHTML = rows.map(r=>`
+        <tr>
+          <td>${r[0]||"-"}</td>
+          <td>${r[1]||"-"}</td>
+          <td>${r[2]?r[2].split(", ").map(u=>`<img src="${u}" width="50">`).join(""):"-"}</td>
+          <td>${r[3]?r[3].split(", ").map(u=>`<video src="${u}" width="100" controls></video>`).join(""):"-"}</td>
+          <td>${r[4]||"-"}</td>
+        </tr>
+      `).join("");
+    }else{ tabelBody.innerHTML="<tr><td colspan='5' align='center'>Belum ada data.</td></tr>"; }
+  }catch(err){ console.error(err); tabelBody.innerHTML="<tr><td colspan='5' align='center'>Gagal memuat data.</td></tr>"; }
+}
+loadData();
 </script>
 
 </body>
