@@ -1,65 +1,81 @@
-try {
-  // 🛰️ Kirim data ke NoCodeAPI
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/CSRVlyNAJbppmLcN";
+const SHEET_NAME = "FormAspirasi";
 
-  // 🧾 Ambil hasil respons
-  let hasil;
+const form = document.getElementById("aspirasiForm");
+const notif = document.getElementById("notif");
+const tabelBody = document.getElementById("tabelBody");
+
+// 🔹 Tampilkan notifikasi
+function tampilkanNotif(pesan, tipe) {
+  notif.textContent = pesan;
+  notif.className = `notif ${tipe}`;
+}
+
+// 🔹 Muat data dari Sheet
+async function muatData() {
+  tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
+
   try {
-    hasil = await res.json();
-  } catch (jsonErr) {
-    console.warn("⚠️ Gagal parse JSON dari response:", jsonErr);
-    hasil = { error: "Response bukan JSON valid" };
+    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
+    const json = await res.json();
+
+    console.log("📄 Data sheet:", json);
+
+    if (json.data && json.data.length > 1) {
+      const rows = json.data.slice(1); // lewati header
+      tabelBody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r[0] || "-"}</td>
+          <td>${r[1] || "-"}</td>
+          <td>${r[2] || "-"}</td>
+        </tr>
+      `).join("");
+    } else {
+      tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
+    }
+  } catch (err) {
+    console.error("Gagal memuat:", err);
+    tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
+}
 
-  console.log("📦 Hasil response:", hasil);
-  console.log("📤 Request body terkirim:", JSON.stringify(body));
+// 🔹 Event submit
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  // ✅ Jika sukses
-  if (res.ok && hasil.message === "Success") {
-    tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
-    document.getElementById("aspirasiForm").reset();
-    muatData();
+  const nama = document.getElementById("nama").value.trim();
+  const pesan = document.getElementById("pesan").value.trim();
+  const tanggal = new Date().toLocaleString("id-ID");
+
+  if (!nama || !pesan) {
+    tampilkanNotif("⚠️ Harap isi semua kolom.", "error");
     return;
   }
 
-  // ⚠️ Jika error "Body param should be a 2D array"
-  if (hasil.error && hasil.error.includes("2D array")) {
-    tampilkanNotif("⚙️ Format data salah — mencoba ulang otomatis...", "error");
+  const body = { values: [[tanggal, nama, pesan]] };
+  console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
-    const fallbackUrl = `${ENDPOINT}?tabId=${SHEET_NAME}`;
-    console.log("🔁 Mengulang POST ke:", fallbackUrl);
-
-    const res2 = await fetch(fallbackUrl, {
+  try {
+    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ values: [[tanggal, nama, pesan]] })
+      body: JSON.stringify(body)
     });
 
-    const hasil2 = await res2.json();
-    console.log("📦 Respons fallback:", hasil2);
+    const hasil = await res.json();
+    console.log("📦 Hasil response:", hasil);
 
-    if (res2.ok && hasil2.message === "Success") {
-      tampilkanNotif("✅ Aspirasi berhasil dikirim (mode fallback)!", "success");
-      document.getElementById("aspirasiForm").reset();
+    if (res.ok && hasil.message === "Success") {
+      tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
+      form.reset();
       muatData();
     } else {
-      tampilkanNotif("❌ Gagal kirim (fallback): " + (hasil2.error || hasil2.message), "error");
+      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
     }
-    return;
+  } catch (err) {
+    console.error("❌ Kesalahan koneksi:", err);
+    tampilkanNotif("❌ Tidak dapat terhubung ke server.", "error");
   }
+});
 
-  // ❌ Jika gagal tapi bukan error 2D array
-  tampilkanNotif(
-    "❌ Gagal mengirim: " + (hasil.error || hasil.message || `Kode ${res.status}`),
-    "error"
-  );
-
-} catch (err) {
-  // 💥 Jika error koneksi / fatal
-  console.error("❌ Kesalahan koneksi:", err);
-  tampilkanNotif("❌ Tidak dapat terhubung ke server (cek koneksi).", "error");
-}
+muatData();
