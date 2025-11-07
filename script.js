@@ -3,9 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const fotoInput = document.getElementById("foto");
     const videoInput = document.getElementById("video");
 
-    const fotoPreview = document.createElement("img");
-    const videoPreview = document.createElement("video");
-    videoPreview.setAttribute("controls", "true");
+    const pratinjauContainer = document.getElementById("pratinjauContainer");
 
     // Pratinjau foto
     fotoInput.addEventListener("change", function(e) {
@@ -13,8 +11,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(event) {
+                const fotoPreview = document.createElement("img");
                 fotoPreview.src = event.target.result;
-                document.body.appendChild(fotoPreview);  // Menampilkan pratinjau gambar
+                fotoPreview.style.maxWidth = '100%';
+                fotoPreview.style.marginTop = '15px';
+                pratinjauContainer.innerHTML = '';  // Clear previous previews
+                pratinjauContainer.appendChild(fotoPreview);  // Menampilkan pratinjau gambar
             };
             reader.readAsDataURL(file);
         }
@@ -25,8 +27,13 @@ document.addEventListener("DOMContentLoaded", function() {
         const file = e.target.files[0];
         if (file) {
             const url = URL.createObjectURL(file);
+            const videoPreview = document.createElement("video");
+            videoPreview.setAttribute("controls", "true");
             videoPreview.src = url;
-            document.body.appendChild(videoPreview);  // Menampilkan pratinjau video
+            videoPreview.style.maxWidth = '100%';
+            videoPreview.style.marginTop = '15px';
+            pratinjauContainer.innerHTML = '';  // Clear previous previews
+            pratinjauContainer.appendChild(videoPreview);  // Menampilkan pratinjau video
         }
     });
 
