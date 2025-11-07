@@ -73,6 +73,11 @@ button:hover {
   margin-top: 40px;
 }
 
+/* Menyembunyikan daftar aspirasi warga sejak awal */
+#rekapContainer {
+  display: none;  /* Tabel ini akan disembunyikan saat halaman pertama kali dimuat */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
