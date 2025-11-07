@@ -7,7 +7,7 @@ const notif = document.getElementById("notif");
 const tabelBody = document.getElementById("tabelBody");
 
 // 🔹 Fungsi menampilkan notifikasi
-function tampilkanNotif(pesan, tipe) {
+function tampilkanNotif(pesan, tipe = "info") {
   notif.textContent = pesan;
   notif.className = `notif ${tipe}`;
 }
@@ -17,17 +17,17 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
+    const res = await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
 
-    if (json.data && json.data.length > 1) {
+    if (Array.isArray(json.data) && json.data.length > 1) {
       const rows = json.data.slice(1); // lewati header
       tabelBody.innerHTML = rows.map(r => `
         <tr>
-          <td>${r[0] || "-"}</td>
           <td>${r[1] || "-"}</td>
           <td>${r[2] || "-"}</td>
+          <td>${r[0] || "-"}</td>
         </tr>
       `).join("");
     } else {
@@ -44,8 +44,8 @@ async function muatData() {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nama = document.getElementById("nama").value.trim();
-  const pesan = document.getElementById("pesan").value.trim();
+  const nama = form.querySelector("#nama")?.value.trim() || "";
+  const pesan = form.querySelector("#pesan")?.value.trim() || "";
   const tanggal = new Date().toLocaleString("id-ID");
 
   if (!nama || !pesan) {
@@ -53,12 +53,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // ✅ Format body langsung array 2D (tanpa key "values")
+  // ✅ Format body langsung array 2D
   const body = [[tanggal, nama, pesan]];
   console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
   try {
-    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
+    const res = await fetch(`${ENDPOINT}?sheet=${SHEET_NAME}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -67,17 +67,16 @@ form.addEventListener("submit", async (e) => {
     const hasil = await res.json();
     console.log("📦 Hasil response:", hasil);
 
-    // ✅ tangkap semua jenis pesan sukses
     if (res.ok && (
       hasil.message === "Success" ||
       hasil.message === "Successfully Inserted" ||
-      hasil.message?.includes("Success")
+      (hasil.message && hasil.message.includes("Success"))
     )) {
       tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
       form.reset();
       muatData();
     } else {
-      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
+      tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message || "Unknown error"), "error");
     }
 
   } catch (err) {
