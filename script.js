@@ -1,4 +1,6 @@
-// ✅ Endpoint dan nama tab
+
+
+// ✅ Ganti dengan endpoint NoCodeAPI kamu
 const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
 const SHEET_NAME = "FormAspirasi";
 
@@ -6,7 +8,7 @@ const form = document.getElementById("aspirasiForm");
 const notif = document.getElementById("notif");
 const tabelBody = document.getElementById("tabelBody");
 
-// 🔹 Fungsi notifikasi
+// 🔹 Fungsi menampilkan notifikasi
 function tampilkanNotif(pesan, tipe) {
   notif.textContent = pesan;
   notif.className = `notif ${tipe}`;
@@ -17,17 +19,13 @@ async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
-    const res = await fetch(`${ENDPOINT}?tabName=${SHEET_NAME}`); // gunakan tabName
+    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
     const json = await res.json();
     console.log("📄 Data sheet:", json);
 
-    // Data bisa ada di json.data.values atau json.data
-    const rows = json.data?.values || json.data;
-
-    if (rows && rows.length > 1) {
-      // lewati header
-      const dataRows = rows.slice(1);
-      tabelBody.innerHTML = dataRows.map(r => `
+    if (json.data && json.data.length > 1) {
+      const rows = json.data.slice(1); // lewati header
+      tabelBody.innerHTML = rows.map(r => `
         <tr>
           <td>${r[0] || "-"}</td>
           <td>${r[1] || "-"}</td>
@@ -57,11 +55,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
+  // ✅ Format body langsung array 2D (tanpa key "values")
   const body = [[tanggal, nama, pesan]];
   console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
   try {
-    const res = await fetch(`${ENDPOINT}?tabName=${SHEET_NAME}`, {
+    const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -70,6 +69,7 @@ form.addEventListener("submit", async (e) => {
     const hasil = await res.json();
     console.log("📦 Hasil response:", hasil);
 
+    // ✅ tangkap semua jenis pesan sukses
     if (res.ok && (
       hasil.message === "Success" ||
       hasil.message === "Successfully Inserted" ||
@@ -77,7 +77,7 @@ form.addEventListener("submit", async (e) => {
     )) {
       tampilkanNotif("✅ Aspirasi berhasil dikirim!", "success");
       form.reset();
-      muatData(); // refresh tabel
+      muatData();
     } else {
       tampilkanNotif("❌ Gagal kirim: " + (hasil.error || hasil.message), "error");
     }
