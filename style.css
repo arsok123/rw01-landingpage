@@ -13,6 +13,9 @@ body {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   padding: 25px 35px;
 }
+#rekapContainer {
+    display: none;  /* Menyembunyikan elemen ini */
+}
 
 h2, h3 {
   text-align: center;
