@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Fungsi untuk memuat data dari Google Sheets
     function loadAspirasi() {
         // Menggunakan fetch untuk mengambil data dari Google Sheets API
-        fetch("URL_API_GOOGLE_SHEETS") // Ganti dengan URL API Google Sheets Anda
+        fetch("https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI") // Ganti dengan URL API Google Sheets Anda
             .then(response => response.json())
             .then(data => {
                 // Clear tabel sebelum menambah data baru
