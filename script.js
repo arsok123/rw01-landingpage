@@ -1,28 +1,28 @@
-const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI?tabId=FormAspirasi";
+// 🔗 Ganti dengan endpoint NoCodeAPI kamu
+const ENDPOINT = "https://v1.nocodeapi.com/arsok70/google_sheets/HFVLzVrXEYXcFYRI";
 const SHEET_NAME = "FormAspirasi";
 
 const form = document.getElementById("aspirasiForm");
 const notif = document.getElementById("notif");
 const tabelBody = document.getElementById("tabelBody");
 
-// 🔹 Tampilkan notifikasi
+// 🔹 Fungsi tampilkan notifikasi
 function tampilkanNotif(pesan, tipe) {
   notif.textContent = pesan;
   notif.className = `notif ${tipe}`;
 }
 
-// 🔹 Muat data dari Sheet
+// 🔹 Fungsi untuk memuat data dari Sheet
 async function muatData() {
   tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Memuat data...</td></tr>";
 
   try {
     const res = await fetch(`${ENDPOINT}?tabId=${SHEET_NAME}`);
     const json = await res.json();
-
     console.log("📄 Data sheet:", json);
 
     if (json.data && json.data.length > 1) {
-      const rows = json.data.slice(1); // lewati header
+      const rows = json.data.slice(1);
       tabelBody.innerHTML = rows.map(r => `
         <tr>
           <td>${r[0] || "-"}</td>
@@ -34,12 +34,12 @@ async function muatData() {
       tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Belum ada data.</td></tr>";
     }
   } catch (err) {
-    console.error("Gagal memuat:", err);
+    console.error("❌ Gagal memuat:", err);
     tabelBody.innerHTML = "<tr><td colspan='3' align='center'>Gagal memuat data.</td></tr>";
   }
 }
 
-// 🔹 Event submit
+// 🔹 Saat form dikirim
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -52,7 +52,8 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const body = { values: [[tanggal, nama, pesan]] };
+  // Format body sesuai dokumentasi NoCodeAPI
+  const body = [[tanggal, nama, pesan]];
   console.log("📤 Akan dikirim:", JSON.stringify(body, null, 2));
 
   try {
