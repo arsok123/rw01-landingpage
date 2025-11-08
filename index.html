@@ -1,100 +1,302 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Aspirasi + Upload Media</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f9fafc; padding: 20px; }
-    form { background: white; max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-    button { background: #2d89ef; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background: #1b5fbd; }
-    .notif { text-align: center; margin-top: 10px; font-weight: bold; }
-    video, img { margin-top: 10px; max-width: 100%; border-radius: 8px; }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard Aspirasi — Real-time</title>
+<style>
+  :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{margin:12px;background:#f5f7fb;color:#111}
+  .container{max-width:1100px;margin:0 auto;padding:12px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  h1{font-size:20px;margin:0}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  input,select,button{padding:8px;border-radius:6px;border:1px solid #cfd8e3;background:#fff}
+  button{cursor:pointer}
+  .panel{background:#fff;padding:12px;border-radius:8px;margin-top:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top}
+  th{background:#fbfdff;position:sticky;top:0}
+  .thumb{max-width:80px;border-radius:6px}
+  .status-badge{padding:4px 8px;border-radius:999px;font-size:13px}
+  .status-baru{background:#fff8e6;color:#a76d00;border:1px solid #ffe6a7}
+  .status-diproses{background:#e9f7ff;color:#055160;border:1px solid #bfe9ff}
+  .status-selesai{background:#e9ffef;color:#0b6b2a;border:1px solid #bfffd0}
+  .actions{display:flex;gap:6px}
+  @media (max-width:800px){ .container{padding:8px} table,th,td{font-size:12px} .thumb{max-width:60px}}
+</style>
 </head>
 <body>
+<div class="container">
+  <header>
+    <h1>📊 Dashboard Aspirasi (Real-time)</h1>
+    <div class="controls">
+      <button id="btnRefresh">Refresh</button>
+      <button id="btnExportCSV">Export CSV (Excel)</button>
+      <button id="btnExportPDF">Export PDF</button>
+      <button id="btnAdminToggle">Masuk Admin</button>
+    </div>
+  </header>
 
-  <h2 align="center">📢 Form Aspirasi Warga</h2>
+  <div class="panel">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <div style="flex:1;min-width:220px">
+        <label>Filter Nama</label><br>
+        <input id="filterName" placeholder="Cari nama..." />
+      </div>
+      <div>
+        <label>Dari</label><br>
+        <input type="date" id="filterFrom" />
+      </div>
+      <div>
+        <label>Sampai</label><br>
+        <input type="date" id="filterTo" />
+      </div>
+      <div>
+        <label>Filter Status</label><br>
+        <select id="filterStatus">
+          <option value="">Semua</option>
+          <option value="Baru">Baru</option>
+          <option value="Diproses">Diproses</option>
+          <option value="Selesai">Selesai</option>
+        </select>
+      </div>
+    </div>
 
-  <form id="aspirasiForm">
-    <input type="text" id="nama" placeholder="Nama Anda" required>
-    <textarea id="pesan" placeholder="Tulis aspirasi Anda..." rows="4" required></textarea>
-    <input type="file" id="file" accept="image/*,video/*">
-    <button type="submit">Kirim Aspirasi</button>
-    <div id="notif" class="notif"></div>
-  </form>
+    <div style="margin-top:12px; overflow:auto" id="tableWrap" class="panel">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th style="width:140px">Tanggal</th>
+            <th style="width:160px">Nama</th>
+            <th>Aspirasi</th>
+            <th style="width:160px">File</th>
+            <th style="width:120px">Status</th>
+            <th style="width:140px">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwhvqlFX-PgSpbXkv1I22vTj9RnQSicVD0qeCVHv58csr7XCq-IRvbP7NWjBRN--Hhp/exec";
+<!-- html2pdf for PDF export -->
+<script src="https://unpkg.com/html2pdf.js@0.9.3/dist/html2pdf.bundle.min.js"></script>
 
-    const form = document.getElementById("aspirasiForm");
-    const notif = document.getElementById("notif");
-    const fileInput = document.getElementById("file");
+<script>
+/*
+  INSTRUKSI:
+  - Ganti ENDPOINT di bawah dengan URL Web App Apps Script yang telah kamu deploy.
+  - Apps Script harus mengembalikan data via doGet() sebagai { data: [ [...], ... ] }
+  - Kolom sheet expected: [Tanggal, Nama, Pesan, FileURL, Status]
+*/
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbz1D7GQdajV_jaQQBJPZojnu-q77VbP_hydwXKxqB7FiNyTlLGKPJ1-S4Tsim376Fsi/exec"; // <<< GANTI DI SINI
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+const tbody = document.getElementById('tbody');
+const btnRefresh = document.getElementById('btnRefresh');
+const btnExportCSV = document.getElementById('btnExportCSV');
+const btnExportPDF = document.getElementById('btnExportPDF');
+const btnAdminToggle = document.getElementById('btnAdminToggle');
+const filterName = document.getElementById('filterName');
+const filterFrom = document.getElementById('filterFrom');
+const filterTo = document.getElementById('filterTo');
+const filterStatus = document.getElementById('filterStatus');
 
-      const nama = document.getElementById("nama").value.trim();
-      const pesan = document.getElementById("pesan").value.trim();
-      const file = fileInput.files[0];
+let rawData = []; // data array from Sheets
+let adminMode = false;
 
-      if (!nama || !pesan) {
-        notif.textContent = "⚠️ Harap isi semua kolom!";
-        notif.style.color = "red";
-        return;
-      }
+// Simple admin password (client-side) — not secure, but handy for small RW setup.
+// Ganti kata sandi jika mau.
+const ADMIN_PASSWORD = "admin123";
 
-      notif.textContent = "⏳ Mengirim data...";
-      notif.style.color = "black";
+async function fetchData() {
+  try {
+    const res = await fetch(ENDPOINT);
+    const json = await res.json();
+    // json.data is array of rows (including header)
+    rawData = Array.isArray(json.data) ? json.data : [];
+    renderTable();
+  } catch (err) {
+    console.error("fetchData error", err);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#a00">Gagal memuat data</td></tr>`;
+  }
+}
 
-      let fileBase64 = "", fileName = "", fileType = "";
-      if (file) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        await new Promise(resolve => {
-          reader.onload = () => {
-            const base64 = reader.result.split(",")[1];
-            fileBase64 = base64;
-            fileName = file.name;
-            fileType = file.type;
-            resolve();
-          };
-        });
-      }
+function applyFilters(rows) {
+  const nameQ = filterName.value.trim().toLowerCase();
+  const from = filterFrom.value;
+  const to = filterTo.value;
+  const statusFilter = filterStatus.value;
 
-      const formData = new URLSearchParams();
-      formData.append("nama", nama);
-      formData.append("pesan", pesan);
-      if (fileBase64) {
-        formData.append("file", fileBase64);
-        formData.append("filename", fileName);
-        formData.append("type", fileType);
-      }
+  return rows.filter(r => {
+    // r structure: [Tanggal, Nama, Pesan, FileURL, Status]
+    const tanggal = (r[0] || "").toString();
+    const nama = (r[1] || "").toString().toLowerCase();
+    const pesan = (r[2] || "").toString();
+    const fileURL = (r[3] || "").toString();
+    const status = (r[4] || "").toString();
 
-      try {
-        const res = await fetch(ENDPOINT, {
-          method: "POST",
-          body: formData
-        });
-        const hasil = await res.json();
+    if (nameQ && !nama.includes(nameQ)) return false;
+    if (statusFilter && status !== statusFilter) return false;
 
-        if (hasil.message === "Success") {
-          notif.textContent = "✅ Aspirasi berhasil dikirim!";
-          notif.style.color = "green";
-          form.reset();
+    if (from) {
+      const d = new Date(tanggal);
+      const fromD = new Date(from + "T00:00:00");
+      if (isValidDate(d) && d < fromD) return false;
+    }
+    if (to) {
+      const d = new Date(tanggal);
+      const toD = new Date(to + "T23:59:59");
+      if (isValidDate(d) && d > toD) return false;
+    }
+
+    return true;
+  });
+}
+
+function isValidDate(d){ return d instanceof Date && !isNaN(d); }
+
+function renderTable() {
+  // Skip header row if exists
+  const rows = rawData.length > 1 ? rawData.slice(1) : [];
+  // Add sheetRowNumber (1-based)
+  const withIndex = rows.map((r, i) => ({ sheetRow: i + 2, row: r })); // +2: header is row1, row i maps to sheet row i+2
+  const filtered = applyFilters(withIndex.map(x => x.row)).map((r,i) => withIndex[i]); // keep same index mapping
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center">Belum ada data.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(item => {
+    const r = item.row;
+    const rowNum = item.sheetRow;
+    const tanggal = escapeHtml(r[0] || "");
+    const nama = escapeHtml(r[1] || "");
+    const pesan = escapeHtml(r[2] || "");
+    const fileURL = (r[3] || "").toString();
+    const status = (r[4] || "Baru").toString();
+
+    // display file: if url contains google drive link show thumbnail or video
+    let fileHtml = "-";
+    if (fileURL) {
+      // allow comma-separated multiple urls
+      const parts = fileURL.split(",").map(s=>s.trim()).filter(Boolean);
+      fileHtml = parts.map(u => {
+        if (u.match(/\.(jpg|jpeg|png|gif)(\?|$)/i) || u.includes("googleusercontent") || u.includes("drive.google.com")) {
+          return `<a href="${u}" target="_blank"><img class="thumb" src="${u}" alt="file"></a>`;
+        } else if (u.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
+          return `<a href="${u}" target="_blank"><video class="thumb" src="${u}" controls></video></a>`;
         } else {
-          notif.textContent = "❌ Gagal mengirim: " + (hasil.error || "Tidak diketahui");
-          notif.style.color = "red";
+          return `<a href="${u}" target="_blank">Lihat file</a>`;
         }
+      }).join(" ");
+    }
 
-      } catch (err) {
-        notif.textContent = "❌ Koneksi gagal!";
-        notif.style.color = "red";
-      }
+    // status badge class
+    const statusClass = status === "Baru" ? "status-baru" : status === "Diproses" ? "status-diproses" : "status-selesai";
+
+    // actions: if adminMode show buttons to change status
+    const btns = adminMode ? `
+      <div class="actions">
+        <button data-row="${rowNum}" data-status="Baru" class="btn-set">Baru</button>
+        <button data-row="${rowNum}" data-status="Diproses" class="btn-set">Diproses</button>
+        <button data-row="${rowNum}" data-status="Selesai" class="btn-set">Selesai</button>
+      </div>
+    ` : `<div style="color:#666;font-size:13px">-</div>`;
+
+    return `<tr>
+      <td>${tanggal}</td>
+      <td><strong>${nama}</strong><div style="font-size:13px;color:#555;margin-top:6px">${pesan}</div></td>
+      <td>${fileHtml}</td>
+      <td><span class="status-badge ${statusClass}">${status}</span></td>
+      <td>${btns}</td>
+    </tr>`;
+  }).join("");
+
+  // attach event listeners for set status buttons
+  if (adminMode) {
+    document.querySelectorAll('.btn-set').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const row = Number(btn.getAttribute('data-row'));
+        const value = btn.getAttribute('data-status');
+        await updateStatus(row, 5, value); // col 5 = Status column
+        await fetchData(); // refresh
+      });
     });
-  </script>
+  }
+}
 
+async function updateStatus(sheetRow, col, value) {
+  try {
+    // call POST with action=update
+    const res = await fetch(ENDPOINT + '?action=update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ row: sheetRow, col: col, value: value })
+    });
+    const j = await res.json();
+    if (!res.ok || j.message === 'Error') {
+      alert('Gagal mengubah status: ' + (j.error || JSON.stringify(j)));
+    }
+  } catch (err) {
+    console.error('updateStatus error', err);
+    alert('Gagal koneksi saat update status');
+  }
+}
+
+function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+
+// EXPORT CSV (Excel can open)
+function exportCSV() {
+  // header
+  const rows = rawData.length ? rawData : [];
+  if (!rows.length) return alert('Tidak ada data');
+  const csv = rows.map(r => r.map(cell => `"${String(cell || "").replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'aspirasi_export.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportPDF() {
+  const element = document.getElementById('tableWrap');
+  const opt = { margin:0.2, filename: 'aspirasi.pdf', image:{type:'jpeg',quality:0.98}, html2canvas:{scale:1.4}, jsPDF:{unit:'in',format:'a4',orientation:'portrait'} };
+  html2pdf().set(opt).from(element).save();
+}
+
+// ADMIN toggle
+btnAdminToggle.addEventListener('click', ()=>{
+  if (!adminMode) {
+    const pw = prompt('Masukkan password admin:');
+    if (pw === ADMIN_PASSWORD) {
+      adminMode = true;
+      btnAdminToggle.textContent = 'Keluar Admin';
+      btnAdminToggle.style.background = '#f2a654';
+      renderTable();
+      alert('Admin mode aktif — tombol ubah status muncul.');
+    } else {
+      alert('Password salah.');
+    }
+  } else {
+    adminMode = false;
+    btnAdminToggle.textContent = 'Masuk Admin';
+    btnAdminToggle.style.background = '';
+    renderTable();
+  }
+});
+
+btnRefresh.addEventListener('click', ()=>fetchData());
+btnExportCSV.addEventListener('click', ()=>exportCSV());
+btnExportPDF.addEventListener('click', ()=>exportPDF());
+
+// live-ish refresh setiap 8 detik
+fetchData();
+setInterval(fetchData, 8000);
+</script>
 </body>
 </html>
