@@ -1,139 +1,100 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Form Aspirasi (Kirim)</title>
-<style>
-  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;background:#f5f7fb}
-  .card{max-width:640px;margin:0 auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-  input,textarea,button{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #d9e0ea;box-sizing:border-box}
-  button{background:#2d89ef;color:#fff;border:none;font-weight:600;cursor:pointer}
-  .preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px}
-  .preview img,.preview video{width:100%;height:auto;border-radius:6px;border:1px solid #eee}
-  .small{font-size:13px;color:#666;margin-top:8px}
-  .notif{margin-top:10px;font-weight:600;text-align:center}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Aspirasi + Upload Media</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9fafc; padding: 20px; }
+    form { background: white; max-width: 500px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    input, textarea, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #2d89ef; color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background: #1b5fbd; }
+    .notif { text-align: center; margin-top: 10px; font-weight: bold; }
+    video, img { margin-top: 10px; max-width: 100%; border-radius: 8px; }
+  </style>
 </head>
 <body>
-  <div class="card">
-    <h2>🗣️ Kirim Aspirasi</h2>
-    <form id="aspirasiForm">
-      <input id="nama" name="nama" placeholder="Nama Anda" required />
-      <textarea id="pesan" name="pesan" placeholder="Tulis aspirasi..." rows="4" required></textarea>
 
-      <label class="small">Foto / Video (opsional)</label>
-      <input id="fileInput" type="file" accept="image/*,video/*" />
+  <h2 align="center">📢 Form Aspirasi Warga</h2>
 
-      <div id="preview" class="preview"></div>
-
-      <button type="submit">Kirim Aspirasi</button>
-    </form>
-
+  <form id="aspirasiForm">
+    <input type="text" id="nama" placeholder="Nama Anda" required>
+    <textarea id="pesan" placeholder="Tulis aspirasi Anda..." rows="4" required></textarea>
+    <input type="file" id="file" accept="image/*,video/*">
+    <button type="submit">Kirim Aspirasi</button>
     <div id="notif" class="notif"></div>
-    <p class="small">Catatan: Foto/video akan diunggah ke Google Drive dan link otomatis disimpan di Google Sheets.</p>
-  </div>
+  </form>
 
-<script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxnsoe8yBqW88wizveb-5Ab4CmBR5B6y-7-kI9ZBshw_kKEwZ2vITjuH9aIvw7rtRKY/exec";
+  <script>
+    const ENDPOINT = "PASTE_URL_WEB_APP_KAMU_DI_SINI";
 
-const form = document.getElementById('aspirasiForm');
-const notif = document.getElementById('notif');
-const fileInput = document.getElementById('fileInput');
-const preview = document.getElementById('preview');
+    const form = document.getElementById("aspirasiForm");
+    const notif = document.getElementById("notif");
+    const fileInput = document.getElementById("file");
 
-let selectedFile = null;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-// 🔹 Preview file
-fileInput.addEventListener('change', () => {
-  preview.innerHTML = '';
-  selectedFile = fileInput.files[0] || null;
-  if (!selectedFile) return;
-  const url = URL.createObjectURL(selectedFile);
-  if (selectedFile.type.startsWith('image/')) {
-    const img = document.createElement('img');
-    img.src = url;
-    preview.appendChild(img);
-  } else {
-    const vid = document.createElement('video');
-    vid.src = url;
-    vid.controls = true;
-    preview.appendChild(vid);
-  }
-});
+      const nama = document.getElementById("nama").value.trim();
+      const pesan = document.getElementById("pesan").value.trim();
+      const file = fileInput.files[0];
 
-// 🔹 Submit form
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  notif.style.color = "#000";
-  notif.textContent = "⏳ Mengirim data...";
+      if (!nama || !pesan) {
+        notif.textContent = "⚠️ Harap isi semua kolom!";
+        notif.style.color = "red";
+        return;
+      }
 
-  const nama = document.getElementById('nama').value.trim();
-  const pesan = document.getElementById('pesan').value.trim();
-  if (!nama || !pesan) {
-    notif.style.color = "red";
-    notif.textContent = "⚠️ Harap isi nama dan pesan.";
-    return;
-  }
+      notif.textContent = "⏳ Mengirim data...";
+      notif.style.color = "black";
 
-  let fileURL = "";
-  if (selectedFile) {
-    notif.textContent = "⏳ Mengunggah file ke Drive...";
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result).split(",")[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(selectedFile);
+      let fileBase64 = "", fileName = "", fileType = "";
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        await new Promise(resolve => {
+          reader.onload = () => {
+            const base64 = reader.result.split(",")[1];
+            fileBase64 = base64;
+            fileName = file.name;
+            fileType = file.type;
+            resolve();
+          };
+        });
+      }
+
+      const formData = new URLSearchParams();
+      formData.append("nama", nama);
+      formData.append("pesan", pesan);
+      if (fileBase64) {
+        formData.append("file", fileBase64);
+        formData.append("filename", fileName);
+        formData.append("type", fileType);
+      }
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          body: formData
+        });
+        const hasil = await res.json();
+
+        if (hasil.message === "Success") {
+          notif.textContent = "✅ Aspirasi berhasil dikirim!";
+          notif.style.color = "green";
+          form.reset();
+        } else {
+          notif.textContent = "❌ Gagal mengirim: " + (hasil.error || "Tidak diketahui");
+          notif.style.color = "red";
+        }
+
+      } catch (err) {
+        notif.textContent = "❌ Koneksi gagal!";
+        notif.style.color = "red";
+      }
     });
+  </script>
 
-    // Kirim file base64 ke Apps Script → akan dikonversi ke file Drive
-    const uploadRes = await fetch(ENDPOINT + "?action=upload", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: selectedFile.name,
-        file: base64,
-        type: selectedFile.type
-      })
-    });
-
-    const uploadJson = await uploadRes.json();
-    if (uploadJson.fileUrl) {
-      fileURL = uploadJson.fileUrl;
-    }
-  }
-
-  // 🔸 Data dikirim ke Apps Script (array of rows)
-  const rowData = [
-    [new Date().toLocaleString("id-ID"), nama, pesan, fileURL, "Baru"]
-  ];
-
-  notif.textContent = "⏳ Menyimpan ke Google Sheets...";
-  try {
-    const res = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(rowData)
-    });
-    const j = await res.json();
-
-    if (res.ok && j.message && j.message.includes("Appended")) {
-      notif.style.color = "green";
-      notif.textContent = "✅ Aspirasi berhasil dikirim!";
-      form.reset();
-      preview.innerHTML = "";
-      selectedFile = null;
-    } else {
-      notif.style.color = "red";
-      notif.textContent = "❌ Gagal kirim: " + (j.error || j.message || JSON.stringify(j));
-      console.error(j);
-    }
-  } catch (err) {
-    notif.style.color = "red";
-    notif.textContent = "❌ Tidak dapat terhubung ke server.";
-    console.error(err);
-  }
-});
-</script>
 </body>
 </html>
