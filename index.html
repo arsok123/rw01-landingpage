@@ -1,168 +1,127 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Aspirasi Warga</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Aspirasi Warga</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 20px;
-    }
-    h2 {
-      text-align: center;
-    }
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    input, textarea, button, select {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      box-sizing: border-box;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-    th {
-      background: #eee;
-    }
-    .status {
-      font-weight: bold;
-    }
-    .notif {
-      text-align: center;
-      margin-bottom: 10px;
-      color: green;
-    }
+    body { font-family: Arial, sans-serif; background: #f9fafb; margin:0; padding:20px; }
+    h2 { text-align:center; color:#333; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+    th, td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
+    th { background:#f1f1f1; }
+    img { width:80px; border-radius:6px; }
+    .status-baru { color:red; font-weight:bold; }
+    .status-proses { color:orange; font-weight:bold; }
+    .status-selesai { color:green; font-weight:bold; }
+    select, button { padding:5px 8px; border-radius:5px; border:1px solid #ccc; }
+    button { background:#007bff; color:white; border:none; cursor:pointer; }
+    button:hover { background:#0056b3; }
   </style>
 </head>
 <body>
-  <h2>Form Aspirasi Warga</h2>
+<h2>📋 Dashboard Aspirasi Warga</h2>
+<p style="text-align:center; color:#666">Menampilkan data dari Google Sheets melalui Apps Script</p>
 
-  <form id="aspirasiForm">
-    <input type="text" id="nama" placeholder="Nama" required>
-    <textarea id="pesan" placeholder="Pesan aspirasi..." required></textarea>
-    <input type="file" id="file">
-    <button type="submit">Kirim Aspirasi</button>
-  </form>
+<table>
+  <thead>
+    <tr>
+      <th>Tanggal</th>
+      <th>Nama</th>
+      <th>Pesan</th>
+      <th>File</th>
+      <th>Status</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="tabelBody"></tbody>
+</table>
 
-  <div class="notif" id="notif"></div>
+<script>
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
+let semuaData = [];
 
-  <h3>Daftar Aspirasi</h3>
-  <table id="tabelAspirasi">
-    <thead>
-      <tr>
-        <th>Tanggal</th>
-        <th>Nama</th>
-        <th>Pesan</th>
-        <th>File</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="tabelBody"></tbody>
-  </table>
+async function loadData() {
+  try {
+    const res = await fetch(ENDPOINT);
+    const json = await res.json();
+    if (!json.data) throw new Error("Data tidak valid");
+    semuaData = json.data.slice(1); // lewati header
+    tampilkanData(semuaData);
+  } catch (err) {
+    alert("Gagal memuat data: " + err.message);
+    console.error(err);
+  }
+}
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
-    const form = document.getElementById("aspirasiForm");
-    const notif = document.getElementById("notif");
-    const tabelBody = document.getElementById("tabelBody");
+function tampilkanData(data) {
+  const tabel = document.getElementById("tabelBody");
+  tabel.innerHTML = "";
+  data.forEach((row,i) => {
+    if (!Array.isArray(row)) return;
+    const [tanggal, nama, pesan, fileUrl, status] = row;
+    const tgl = tanggal ? new Date(tanggal) : "";
+    const statusClass =
+      status === "Selesai" ? "status-selesai" :
+      status === "Proses" ? "status-proses" :
+      "status-baru";
 
-    // 🔹 Ambil data dari Google Sheets
-    async function loadData() {
-      tabelBody.innerHTML = "<tr><td colspan='5'>Memuat data...</td></tr>";
-      try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-
-        if (data.result === "success" && data.data.length > 1) {
-          tabelBody.innerHTML = "";
-          data.data.slice(1).forEach((row, i) => {
-            const [tanggal, nama, pesan, fileUrl, status] = row;
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${tanggal || ""}</td>
-              <td>${nama || ""}</td>
-              <td>${pesan || ""}</td>
-              <td>${fileUrl ? `<a href="${fileUrl}" target="_blank">Lihat</a>` : "-"}</td>
-              <td>
-                <select onchange="updateStatus(${i + 2}, this.value)">
-                  <option ${status === "Baru" ? "selected" : ""}>Baru</option>
-                  <option ${status === "Diproses" ? "selected" : ""}>Diproses</option>
-                  <option ${status === "Selesai" ? "selected" : ""}>Selesai</option>
-                </select>
-              </td>
-            `;
-            tabelBody.appendChild(tr);
-          });
-        } else {
-          tabelBody.innerHTML = "<tr><td colspan='5'>Belum ada data</td></tr>";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tgl ? tgl.toLocaleString() : "-"}</td>
+      <td>${nama || "-"}</td>
+      <td>${pesan || "-"}</td>
+      <td>
+        ${
+          fileUrl
+          ? (fileUrl.includes("drive.google.com")
+            ? `<a href="${fileUrl}" target="_blank"><img src="https://drive.google.com/uc?export=view&id=${ambilIdDrive(fileUrl)}" alt="File"/></a>`
+            : `<a href="${fileUrl}" target="_blank">Lihat File</a>`)
+          : "<em>Tidak ada</em>"
         }
-      } catch (err) {
-        tabelBody.innerHTML = "<tr><td colspan='5'>Gagal memuat data</td></tr>";
-        console.error(err);
-      }
-    }
+      </td>
+      <td class="${statusClass}">${status || "Baru"}</td>
+      <td>
+        <select id="status${i}">
+          <option value="Baru" ${status==="Baru"?"selected":""}>Baru</option>
+          <option value="Proses" ${status==="Proses"?"selected":""}>Proses</option>
+          <option value="Selesai" ${status==="Selesai"?"selected":""}>Selesai</option>
+        </select>
+        <button onclick="ubahStatus(${i+2})">Simpan</button>
+      </td>
+    `;
+    tabel.appendChild(tr);
+  });
+}
 
-    // 🔹 Kirim data baru
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      notif.textContent = "Mengirim data...";
-      const nama = document.getElementById("nama").value;
-      const pesan = document.getElementById("pesan").value;
-      const file = document.getElementById("file").files[0];
+function ambilIdDrive(url) {
+  const match = url.match(/[-\w]{25,}/);
+  return match ? match[0] : "";
+}
 
-      let fileUrl = "";
-      if (file) {
-        fileUrl = URL.createObjectURL(file);
-      }
+async function ubahStatus(row) {
+  const idx = row-2;
+  const val = document.getElementById(`status${idx}`).value;
 
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama, pesan, fileUrl })
-        });
-        notif.textContent = "Data berhasil dikirim!";
-        form.reset();
-        loadData();
-      } catch (err) {
-        notif.textContent = "Gagal mengirim data.";
-        console.error(err);
-      }
+  try {
+    const res = await fetch(`${ENDPOINT}?action=update`, {
+      method:"POST",
+      body: JSON.stringify({ row: row, col:5, value: val }),
+      headers: { "Content-Type": "application/json" }
     });
-
-    // 🔹 Update status
-    async function updateStatus(row, value) {
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ row, col: 5, value })
-        });
-        notif.textContent = "Status berhasil diperbarui!";
-        setTimeout(() => notif.textContent = "", 2000);
-      } catch (err) {
-        notif.textContent = "Gagal mengubah status!";
-        console.error(err);
-      }
+    const json = await res.json();
+    if (json.result==="success") {
+      alert("Status berhasil diperbarui!");
+      loadData();
+    } else {
+      alert("Gagal update status!");
     }
+  } catch(err) {
+    alert("Gagal koneksi: " + err.message);
+  }
+}
 
-    loadData();
-  </script>
+loadData();
+</script>
 </body>
 </html>
