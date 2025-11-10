@@ -1,117 +1,168 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Aspirasi</title>
+  <title>Form Aspirasi Warga</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      box-sizing: border-box;
     }
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: collapse;
+      background: white;
     }
     th, td {
+      padding: 10px;
       border: 1px solid #ccc;
-      padding: 8px;
       text-align: left;
     }
     th {
-      background-color: #f4f4f4;
+      background: #eee;
     }
-    button {
-      padding: 4px 8px;
-      cursor: pointer;
+    .status {
+      font-weight: bold;
+    }
+    .notif {
+      text-align: center;
+      margin-bottom: 10px;
+      color: green;
     }
   </style>
 </head>
 <body>
+  <h2>Form Aspirasi Warga</h2>
 
-  <h2>📋 Data Aspirasi Warga</h2>
-  <div id="notif"></div>
+  <form id="aspirasiForm">
+    <input type="text" id="nama" placeholder="Nama" required>
+    <textarea id="pesan" placeholder="Pesan aspirasi..." required></textarea>
+    <input type="file" id="file">
+    <button type="submit">Kirim Aspirasi</button>
+  </form>
+
+  <div class="notif" id="notif"></div>
+
+  <h3>Daftar Aspirasi</h3>
   <table id="tabelAspirasi">
     <thead>
       <tr>
-        <th>No</th>
         <th>Tanggal</th>
         <th>Nama</th>
         <th>Pesan</th>
-        <th>Foto/Video</th>
+        <th>File</th>
         <th>Status</th>
-        <th>Aksi</th>
       </tr>
     </thead>
     <tbody id="tabelBody"></tbody>
   </table>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKnY3Ny4kJZJjrgUbCnkr7WCv3HuvM0M-QdoMpQ_n7Uq1VncUXmCgcXYOPv8otYnbG/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
+    const form = document.getElementById("aspirasiForm");
+    const notif = document.getElementById("notif");
+    const tabelBody = document.getElementById("tabelBody");
 
-    async function muatData() {
+    // 🔹 Ambil data dari Google Sheets
+    async function loadData() {
+      tabelBody.innerHTML = "<tr><td colspan='5'>Memuat data...</td></tr>";
       try {
         const res = await fetch(SCRIPT_URL);
-        const json = await res.json();
+        const data = await res.json();
 
-        const data = json.data;
-        const tabelBody = document.getElementById("tabelBody");
-        tabelBody.innerHTML = "";
-
-        for (let i = 1; i < data.length; i++) {
-          const row = data[i];
-          if (!row[1]) continue;
-
-          const tr = document.createElement("tr");
-          const foto = row[3] 
-            ? `<a href="${row[3]}" target="_blank">Lihat</a>` 
-            : "-";
-          const status = row[4] || "Baru";
-
-          tr.innerHTML = `
-            <td>${i}</td>
-            <td>${row[0]}</td>
-            <td>${row[1]}</td>
-            <td>${row[2]}</td>
-            <td>${foto}</td>
-            <td>${status}</td>
-            <td>
-              <select onchange="ubahStatus(${i+1}, this.value)">
-                <option value="Baru" ${status==="Baru"?"selected":""}>Baru</option>
-                <option value="Diproses" ${status==="Diproses"?"selected":""}>Diproses</option>
-                <option value="Selesai" ${status==="Selesai"?"selected":""}>Selesai</option>
-              </select>
-            </td>
-          `;
-          tabelBody.appendChild(tr);
+        if (data.result === "success" && data.data.length > 1) {
+          tabelBody.innerHTML = "";
+          data.data.slice(1).forEach((row, i) => {
+            const [tanggal, nama, pesan, fileUrl, status] = row;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${tanggal || ""}</td>
+              <td>${nama || ""}</td>
+              <td>${pesan || ""}</td>
+              <td>${fileUrl ? `<a href="${fileUrl}" target="_blank">Lihat</a>` : "-"}</td>
+              <td>
+                <select onchange="updateStatus(${i + 2}, this.value)">
+                  <option ${status === "Baru" ? "selected" : ""}>Baru</option>
+                  <option ${status === "Diproses" ? "selected" : ""}>Diproses</option>
+                  <option ${status === "Selesai" ? "selected" : ""}>Selesai</option>
+                </select>
+              </td>
+            `;
+            tabelBody.appendChild(tr);
+          });
+        } else {
+          tabelBody.innerHTML = "<tr><td colspan='5'>Belum ada data</td></tr>";
         }
-
       } catch (err) {
-        document.getElementById("notif").innerText = "⚠️ Gagal memuat data: " + err;
+        tabelBody.innerHTML = "<tr><td colspan='5'>Gagal memuat data</td></tr>";
+        console.error(err);
       }
     }
 
-    async function ubahStatus(row, value) {
+    // 🔹 Kirim data baru
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      notif.textContent = "Mengirim data...";
+      const nama = document.getElementById("nama").value;
+      const pesan = document.getElementById("pesan").value;
+      const file = document.getElementById("file").files[0];
+
+      let fileUrl = "";
+      if (file) {
+        fileUrl = URL.createObjectURL(file);
+      }
+
       try {
-        const res = await fetch(SCRIPT_URL + "?action=update", {
+        await fetch(SCRIPT_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ row: row, col: 5, value: value })
+          body: JSON.stringify({ nama, pesan, fileUrl })
         });
-
-        const result = await res.json();
-        if (result.result === "success") {
-          alert("✅ Status berhasil diperbarui");
-          muatData();
-        } else {
-          alert("⚠️ Gagal update: " + (result.message || "Tidak diketahui"));
-        }
+        notif.textContent = "Data berhasil dikirim!";
+        form.reset();
+        loadData();
       } catch (err) {
-        alert("❌ Gagal koneksi: " + err);
+        notif.textContent = "Gagal mengirim data.";
+        console.error(err);
+      }
+    });
+
+    // 🔹 Update status
+    async function updateStatus(row, value) {
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ row, col: 5, value })
+        });
+        notif.textContent = "Status berhasil diperbarui!";
+        setTimeout(() => notif.textContent = "", 2000);
+      } catch (err) {
+        notif.textContent = "Gagal mengubah status!";
+        console.error(err);
       }
     }
 
-    muatData();
+    loadData();
   </script>
 </body>
 </html>
