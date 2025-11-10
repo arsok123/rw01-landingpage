@@ -1,86 +1,94 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Aspirasi Warga</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f9fafb; margin:0; padding:20px; }
-    h2 { text-align:center; color:#333; }
-    table { width:100%; border-collapse:collapse; margin-top:15px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
-    th, td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
-    th { background:#f1f1f1; }
-    img { width:80px; border-radius:6px; }
-    .status-baru { color:red; font-weight:bold; }
-    .status-proses { color:orange; font-weight:bold; }
-    .status-selesai { color:green; font-weight:bold; }
-    select, button { padding:5px 8px; border-radius:5px; border:1px solid #ccc; }
-    button { background:#007bff; color:white; border:none; cursor:pointer; }
-    button:hover { background:#0056b3; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Aspirasi Warga</title>
+<style>
+body { font-family: Arial,sans-serif; margin:20px; background:#f8f9fa; }
+h1 { text-align:center; color:#333; }
+table { width:100%; border-collapse:collapse; margin-top:20px; background:white; }
+th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+th { background:#007bff; color:white; }
+img { max-width:100px; border-radius:8px; }
+select, input[type="date"], button { padding:5px; border-radius:5px; border:1px solid #ccc; }
+button { background:#28a745; color:white; cursor:pointer; border:none; }
+button:hover { background:#218838; }
+.status-baru { background:#ffeeba; }
+.status-proses { background:#bee5eb; }
+.status-selesai { background:#c3e6cb; }
+.filter-container { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:10px; }
+</style>
 </head>
 <body>
-<h2>📋 Dashboard Aspirasi Warga</h2>
-<p style="text-align:center; color:#666">Menampilkan data dari Google Sheets melalui Apps Script</p>
+<h1>📋 Dashboard Aspirasi Warga</h1>
 
-<table>
+<div class="filter-container">
+  <label>Status:</label>
+  <select id="filterStatus">
+    <option value="">Semua</option>
+    <option value="Baru">Baru</option>
+    <option value="Proses">Proses</option>
+    <option value="Selesai">Selesai</option>
+  </select>
+  <label>Dari:</label>
+  <input type="date" id="filterDari">
+  <label>Sampai:</label>
+  <input type="date" id="filterSampai">
+  <button onclick="terapkanFilter()">🔍 Filter</button>
+  <button onclick="resetFilter()" style="background:#6c757d">🔄 Reset</button>
+</div>
+
+<table id="tabelAspirasi">
   <thead>
     <tr>
       <th>Tanggal</th>
       <th>Nama</th>
       <th>Pesan</th>
-      <th>File</th>
+      <th>File / Foto</th>
       <th>Status</th>
-      <th>Aksi</th>
+      <th>Ubah Status</th>
     </tr>
   </thead>
   <tbody id="tabelBody"></tbody>
 </table>
 
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
 let semuaData = [];
 
-async function loadData() {
+async function muatData() {
   try {
-    const res = await fetch(ENDPOINT);
+    const res = await fetch("?action=data");
     const json = await res.json();
-    if (!json.data) throw new Error("Data tidak valid");
     semuaData = json.data.slice(1); // lewati header
     tampilkanData(semuaData);
   } catch (err) {
     alert("Gagal memuat data: " + err.message);
-    console.error(err);
   }
+}
+
+function konversiLinkDrive(url) {
+  if (!url) return "";
+  const match = url.match(/[-\w]{25,}/);
+  return match ? `https://drive.google.com/uc?export=view&id=${match[0]}` : url;
 }
 
 function tampilkanData(data) {
   const tabel = document.getElementById("tabelBody");
   tabel.innerHTML = "";
-  data.forEach((row,i) => {
-    if (!Array.isArray(row)) return;
+  data.forEach((row, i) => {
+    if (!row[0]) return;
     const [tanggal, nama, pesan, fileUrl, status] = row;
-    const tgl = tanggal ? new Date(tanggal) : "";
-    const statusClass =
-      status === "Selesai" ? "status-selesai" :
-      status === "Proses" ? "status-proses" :
-      "status-baru";
-
+    const tgl = new Date(tanggal);
+    const statusClass = status==="Selesai"?"status-selesai":status==="Proses"?"status-proses":"status-baru";
+    const fileLink = konversiLinkDrive(fileUrl);
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${tgl ? tgl.toLocaleString() : "-"}</td>
-      <td>${nama || "-"}</td>
-      <td>${pesan || "-"}</td>
-      <td>
-        ${
-          fileUrl
-          ? (fileUrl.includes("drive.google.com")
-            ? `<a href="${fileUrl}" target="_blank"><img src="https://drive.google.com/uc?export=view&id=${ambilIdDrive(fileUrl)}" alt="File"/></a>`
-            : `<a href="${fileUrl}" target="_blank">Lihat File</a>`)
-          : "<em>Tidak ada</em>"
-        }
-      </td>
-      <td class="${statusClass}">${status || "Baru"}</td>
+      <td>${tgl.toLocaleString()}</td>
+      <td>${nama}</td>
+      <td>${pesan}</td>
+      <td>${fileUrl ? `<a href="${fileUrl}" target="_blank"><img src="${fileLink}"/></a>` : `<em>Tidak ada</em>`}</td>
+      <td class="${statusClass}">${status}</td>
       <td>
         <select id="status${i}">
           <option value="Baru" ${status==="Baru"?"selected":""}>Baru</option>
@@ -94,34 +102,46 @@ function tampilkanData(data) {
   });
 }
 
-function ambilIdDrive(url) {
-  const match = url.match(/[-\w]{25,}/);
-  return match ? match[0] : "";
+function terapkanFilter() {
+  const status = document.getElementById("filterStatus").value;
+  const dari = document.getElementById("filterDari").value ? new Date(document.getElementById("filterDari").value) : null;
+  const sampai = document.getElementById("filterSampai").value ? new Date(document.getElementById("filterSampai").value) : null;
+  const hasil = semuaData.filter(row => {
+    const [tanggal,, , , stat] = row;
+    const tgl = new Date(tanggal);
+    if(status && stat!==status) return false;
+    if(dari && tgl<dari) return false;
+    if(sampai && tgl>sampai) return false;
+    return true;
+  });
+  tampilkanData(hasil);
+}
+
+function resetFilter() {
+  document.getElementById("filterStatus").value="";
+  document.getElementById("filterDari").value="";
+  document.getElementById("filterSampai").value="";
+  tampilkanData(semuaData);
 }
 
 async function ubahStatus(row) {
   const idx = row-2;
   const val = document.getElementById(`status${idx}`).value;
-
   try {
-    const res = await fetch(`${ENDPOINT}?action=update`, {
-      method:"POST",
-      body: JSON.stringify({ row: row, col:5, value: val }),
-      headers: { "Content-Type": "application/json" }
+    const res = await fetch("?action=update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ row, col:5, value: val })
     });
     const json = await res.json();
-    if (json.result==="success") {
-      alert("Status berhasil diperbarui!");
-      loadData();
-    } else {
-      alert("Gagal update status!");
-    }
+    alert(json.result==="success" ? "✅ Status berhasil diperbarui!" : "⚠️ Gagal update status!");
+    muatData();
   } catch(err) {
-    alert("Gagal koneksi: " + err.message);
+    alert("❌ Gagal koneksi: " + err.message);
   }
 }
 
-loadData();
+window.onload = muatData;
 </script>
 </body>
 </html>
