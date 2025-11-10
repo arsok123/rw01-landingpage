@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Aspirasi Warga</title>
 <style>
-body { font-family: Arial,sans-serif; margin:20px; background:#f8f9fa; }
+body { font-family: Arial; margin: 20px; background: #f8f9fa; }
 h1 { text-align:center; color:#333; }
-table { width:100%; border-collapse:collapse; margin-top:20px; background:white; }
+table { width:100%; border-collapse: collapse; margin-top:20px; background:white; }
 th, td { border:1px solid #ddd; padding:10px; text-align:center; }
 th { background:#007bff; color:white; }
 img { max-width:100px; border-radius:8px; }
-select, input[type="date"], button { padding:5px; border-radius:5px; border:1px solid #ccc; }
-button { background:#28a745; color:white; cursor:pointer; border:none; }
+select, button { padding:5px; border-radius:5px; border:1px solid #ccc; }
+button { background:#28a745; color:white; cursor:pointer; }
 button:hover { background:#218838; }
 .status-baru { background:#ffeeba; }
 .status-proses { background:#bee5eb; }
 .status-selesai { background:#c3e6cb; }
-.filter-container { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:10px; }
+.filter-container { display:flex; gap:10px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
 </style>
 </head>
 <body>
@@ -31,15 +31,18 @@ button:hover { background:#218838; }
     <option value="Proses">Proses</option>
     <option value="Selesai">Selesai</option>
   </select>
+
   <label>Dari:</label>
   <input type="date" id="filterDari">
+
   <label>Sampai:</label>
   <input type="date" id="filterSampai">
+
   <button onclick="terapkanFilter()">🔍 Filter</button>
   <button onclick="resetFilter()" style="background:#6c757d">🔄 Reset</button>
 </div>
 
-<table id="tabelAspirasi">
+<table>
   <thead>
     <tr>
       <th>Tanggal</th>
@@ -54,16 +57,17 @@ button:hover { background:#218838; }
 </table>
 
 <script>
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
 let semuaData = [];
 
 async function muatData() {
   try {
-    const res = await fetch("?action=data");
+    const res = await fetch(ENDPOINT);
     const json = await res.json();
-    semuaData = json.data.slice(1); // lewati header
+    semuaData = json.data.slice(1); // skip header
     tampilkanData(semuaData);
-  } catch (err) {
-    alert("Gagal memuat data: " + err.message);
+  } catch(err) {
+    alert("Gagal memuat data: " + err);
   }
 }
 
@@ -76,18 +80,22 @@ function konversiLinkDrive(url) {
 function tampilkanData(data) {
   const tabel = document.getElementById("tabelBody");
   tabel.innerHTML = "";
-  data.forEach((row, i) => {
+  data.forEach((row,i) => {
     if (!row[0]) return;
-    const [tanggal, nama, pesan, fileUrl, status] = row;
+    const [tanggal,nama,pesan,fileUrl,status] = row;
     const tgl = new Date(tanggal);
-    const statusClass = status==="Selesai"?"status-selesai":status==="Proses"?"status-proses":"status-baru";
+    const statusClass =
+      status==="Selesai" ? "status-selesai" :
+      status==="Proses" ? "status-proses" :
+      "status-baru";
     const fileLink = konversiLinkDrive(fileUrl);
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${tgl.toLocaleString()}</td>
       <td>${nama}</td>
       <td>${pesan}</td>
-      <td>${fileUrl ? `<a href="${fileUrl}" target="_blank"><img src="${fileLink}"/></a>` : `<em>Tidak ada</em>`}</td>
+      <td>${fileUrl ? `<a href="${fileUrl}" target="_blank"><img src="${fileLink}" /></a>` : "<em>Tidak ada</em>"}</td>
       <td class="${statusClass}">${status}</td>
       <td>
         <select id="status${i}">
@@ -106,12 +114,13 @@ function terapkanFilter() {
   const status = document.getElementById("filterStatus").value;
   const dari = document.getElementById("filterDari").value ? new Date(document.getElementById("filterDari").value) : null;
   const sampai = document.getElementById("filterSampai").value ? new Date(document.getElementById("filterSampai").value) : null;
+
   const hasil = semuaData.filter(row => {
-    const [tanggal,, , , stat] = row;
+    const [tanggal,, , ,stat] = row;
     const tgl = new Date(tanggal);
-    if(status && stat!==status) return false;
-    if(dari && tgl<dari) return false;
-    if(sampai && tgl>sampai) return false;
+    if (status && stat!==status) return false;
+    if (dari && tgl<dari) return false;
+    if (sampai && tgl>sampai) return false;
     return true;
   });
   tampilkanData(hasil);
@@ -127,21 +136,25 @@ function resetFilter() {
 async function ubahStatus(row) {
   const idx = row-2;
   const val = document.getElementById(`status${idx}`).value;
+
   try {
-    const res = await fetch("?action=update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ row, col:5, value: val })
+    const res = await fetch(ENDPOINT, {
+      method:"POST",
+      body: JSON.stringify({row: row, col:5, value: val})
     });
     const json = await res.json();
-    alert(json.result==="success" ? "✅ Status berhasil diperbarui!" : "⚠️ Gagal update status!");
-    muatData();
+    if(json.result==="success") {
+      alert("✅ Status berhasil diperbarui!");
+      muatData();
+    } else {
+      alert("⚠️ Gagal update status!\n"+JSON.stringify(json));
+    }
   } catch(err) {
     alert("❌ Gagal koneksi: " + err.message);
   }
 }
 
-window.onload = muatData;
+muatData();
 </script>
 </body>
 </html>
