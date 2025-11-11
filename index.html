@@ -3,24 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Aspirasi Warga</title>
+<title>📋 Dashboard Aspirasi Warga</title>
 <style>
-body { font-family: Arial; margin: 20px; background: #f8f9fa; }
-h1 { text-align:center; color:#333; }
-table { width:100%; border-collapse: collapse; margin-top:20px; background:white; }
-th, td { border:1px solid #ddd; padding:10px; text-align:center; vertical-align:top; }
-th { background:#007bff; color:white; }
-img, video { max-width:120px; border-radius:8px; display:block; margin:4px auto; }
-select, button { padding:5px; border-radius:5px; border:1px solid #ccc; }
-button { background:#28a745; color:white; cursor:pointer; }
-button:hover { background:#218838; }
-.status-baru { background:#ffeeba; }
-.status-proses { background:#bee5eb; }
-.status-selesai { background:#c3e6cb; }
-.filter-container { display:flex; gap:10px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
+  body { font-family: system-ui, Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+  h1 { text-align:center; color:#333; }
+  table { width:100%; border-collapse: collapse; margin-top:20px; background:white; }
+  th, td { border:1px solid #ddd; padding:10px; text-align:center; vertical-align:top; }
+  th { background:#007bff; color:white; }
+  img, video { max-width:120px; border-radius:8px; display:block; margin:4px auto; }
+  select, button, input[type="date"] {
+    padding:6px 8px; border-radius:5px; border:1px solid #ccc;
+    font-size:14px;
+  }
+  button {
+    background:#28a745; color:white; cursor:pointer; transition:0.2s;
+  }
+  button:hover { background:#218838; }
+  .status-baru { background:#fff3cd; }
+  .status-proses { background:#d1ecf1; }
+  .status-selesai { background:#d4edda; }
+  .filter-container {
+    display:flex; gap:10px; justify-content:center;
+    margin-bottom:10px; flex-wrap:wrap; align-items:center;
+  }
+  .footer { text-align:center; margin-top:30px; color:#777; font-size:13px; }
 </style>
 </head>
 <body>
+
 <h1>📋 Dashboard Aspirasi Warga</h1>
 
 <div class="filter-container">
@@ -56,18 +66,21 @@ button:hover { background:#218838; }
   <tbody id="tabelBody"></tbody>
 </table>
 
+<div class="footer">© 2025 RW 01 Tarubasan — Sistem Aspirasi Warga</div>
+
 <script>
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbwBBD7MhPZjtlTLHoWT1X0SZqprxVN367l2ZSfVGjugoHGYhEJI680tqVgSNpw1ZUaUlg/exec";
 let semuaData = [];
 
 async function muatData() {
   try {
-    const res = await fetch(ENDPOINT);
+    const res = await fetch(ENDPOINT + "?action=get");
     const json = await res.json();
+    if (!json.data) throw new Error("Data kosong atau format salah");
     semuaData = json.data.slice(1); // skip header
     tampilkanData(semuaData);
   } catch(err) {
-    alert("Gagal memuat data: " + err);
+    alert("⚠️ Gagal memuat data:\n" + err.message);
   }
 }
 
@@ -83,6 +96,12 @@ function konversiLinkDrive(url) {
 function tampilkanData(data) {
   const tabel = document.getElementById("tabelBody");
   tabel.innerHTML = "";
+
+  if (!data.length) {
+    tabel.innerHTML = `<tr><td colspan="6"><em>Belum ada data aspirasi.</em></td></tr>`;
+    return;
+  }
+
   data.forEach((row,i) => {
     if (!row[0]) return;
     const [tanggal,nama,pesan,fileUrl,status] = row;
@@ -106,7 +125,7 @@ function tampilkanData(data) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${tgl.toLocaleString()}</td>
+      <td>${tgl.toLocaleString("id-ID")}</td>
       <td>${nama}</td>
       <td>${pesan}</td>
       <td>${fileHTML}</td>
@@ -151,20 +170,21 @@ async function ubahStatus(row) {
   const idx = row-2;
   const val = document.getElementById(`status${idx}`).value;
   try {
-    const res = await fetch(ENDPOINT+"?action=update&row="+row+"&col=5&value="+encodeURIComponent(val));
+    const res = await fetch(`${ENDPOINT}?action=update&row=${row}&col=5&value=${encodeURIComponent(val)}`);
     const json = await res.json();
     if(json.result==="success") {
       alert("✅ Status berhasil diperbarui!");
       muatData();
     } else {
-      alert("⚠️ Gagal update status!\n"+JSON.stringify(json));
+      alert("⚠️ Gagal update status!\n" + JSON.stringify(json));
     }
   } catch(err) {
-    alert("❌ Gagal koneksi: " + err.message);
+    alert("❌ Gagal koneksi:\n" + err.message);
   }
 }
 
 muatData();
 </script>
+
 </body>
 </html>
