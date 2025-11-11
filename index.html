@@ -8,9 +8,9 @@
 body { font-family: Arial; margin: 20px; background: #f8f9fa; }
 h1 { text-align:center; color:#333; }
 table { width:100%; border-collapse: collapse; margin-top:20px; background:white; }
-th, td { border:1px solid #ddd; padding:10px; text-align:center; }
+th, td { border:1px solid #ddd; padding:10px; text-align:center; vertical-align:top; }
 th { background:#007bff; color:white; }
-img { max-width:100px; border-radius:8px; }
+img, video { max-width:120px; border-radius:8px; display:block; margin:4px auto; }
 select, button { padding:5px; border-radius:5px; border:1px solid #ccc; }
 button { background:#28a745; color:white; cursor:pointer; }
 button:hover { background:#218838; }
@@ -48,7 +48,7 @@ button:hover { background:#218838; }
       <th>Tanggal</th>
       <th>Nama</th>
       <th>Pesan</th>
-      <th>File / Foto</th>
+      <th>File / Foto / Video</th>
       <th>Status</th>
       <th>Ubah Status</th>
     </tr>
@@ -72,9 +72,12 @@ async function muatData() {
 }
 
 function konversiLinkDrive(url) {
-  if (!url) return "";
-  const match = url.match(/[-\w]{25,}/);
-  return match ? `https://drive.google.com/uc?export=view&id=${match[0]}` : url;
+  if (!url) return [];
+  const parts = url.split(',').map(u=>u.trim()).filter(Boolean);
+  return parts.map(u=>{
+    const match = u.match(/[-\w]{25,}/);
+    return match ? `https://drive.google.com/uc?export=view&id=${match[0]}` : u;
+  });
 }
 
 function tampilkanData(data) {
@@ -88,14 +91,25 @@ function tampilkanData(data) {
       status==="Selesai" ? "status-selesai" :
       status==="Proses" ? "status-proses" :
       "status-baru";
-    const fileLink = konversiLinkDrive(fileUrl);
+
+    const fileLinks = konversiLinkDrive(fileUrl);
+    let fileHTML = "<em>Tidak ada</em>";
+    if (fileLinks.length) {
+      fileHTML = fileLinks.map(link=>{
+        if (link.match(/\.(mp4|webm|ogg)$/i)) {
+          return `<video src="${link}" controls></video>`;
+        } else {
+          return `<a href="${link}" target="_blank"><img src="${link}"></a>`;
+        }
+      }).join("");
+    }
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${tgl.toLocaleString()}</td>
       <td>${nama}</td>
       <td>${pesan}</td>
-      <td>${fileUrl ? `<a href="${fileUrl}" target="_blank"><img src="${fileLink}" /></a>` : "<em>Tidak ada</em>"}</td>
+      <td>${fileHTML}</td>
       <td class="${statusClass}">${status}</td>
       <td>
         <select id="status${i}">
@@ -136,12 +150,8 @@ function resetFilter() {
 async function ubahStatus(row) {
   const idx = row-2;
   const val = document.getElementById(`status${idx}`).value;
-
   try {
-    const res = await fetch(ENDPOINT, {
-      method:"POST",
-      body: JSON.stringify({row: row, col:5, value: val})
-    });
+    const res = await fetch(ENDPOINT+"?action=update&row="+row+"&col=5&value="+encodeURIComponent(val));
     const json = await res.json();
     if(json.result==="success") {
       alert("✅ Status berhasil diperbarui!");
